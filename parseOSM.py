@@ -1,72 +1,99 @@
 import xml.etree.ElementTree as ET
 import urllib2
 
+## parse initial input XML
+
 tree = ET.parse('map_sample.osm')
 root = tree.getroot()
 
-# for node in root.iter('node'):
-    # points[(node.attrib.get('lon'), node.attrib.get('lat'))] = 0
+
+## initialize counters to check expected behavior
+
+result_count = 0
+node_count = len(root.findall('node'))
+amenity_count = len(root.findall('.//tag[@k="amenity"]'))
+num_locations = 0
+http_request_count = 0
+
+print "root nodes: ", node_count
+print "amenity nodes: ", amenity_count
+print "should have %d results" % (node_count - amenity_count)
 
 
-## setting an elevation attribute
-# for node in root.iter('node'):
-#     node.set('elev', 0)
-#     print node.attrib.get('lon'), node.attrib.get('lat'), node.attrib.get('elev')
-#     print node.attrib
-
-loc_strings = []
-locations = ""
-# loc_str_lengths = []
-# loc_count = 0 # can del later
-
-## function definitions for building HTTP requests
+## function definitions for HTTP requests
 
 def encode_location(lat, long):
     location = lat + "," + long + "|"
     return location
 
-def build_urls(encoded_strings):
-    url_list = []
+def build_url(encoded_string):
     url_string = "http://maps.googleapis.com/maps/api/elevation/xml?locations=%s&sensor=false"
-    for enc_str in encoded_strings:
-        url_list.append(url_string % enc_str)
-    return url_list
+    return url_string % encoded_string
 
+def get_elevations(url):
+    response = urllib2.urlopen(url)
+    xml = response.read()
+    return xml
+
+def parse_results(result_xml):
+    r_root = ET.fromstring(result_xml)
+    return r_root
+
+def assign_elevations(orig_root, nodes, xml_root, result_count):
+    this_index = 0
+    for result in xml_root.iter('result'):
+        result_count += 1
+        elev = result.find('elevation').text
+        this_node = orig_root.find("./node[@id=%r]"%nodes[this_index])
+        this_node.set('elev', elev)
+        this_index += 1
+    return orig_root, result_count
 
 
 ## parse XML
 
-for node in root.iter('node'):
-    next = encode_location(node.attrib.get('lat'), node.attrib.get('lon'))
-    # print root.findall("./[@tag=")
-    found_amenity = node.findall('.//tag[@k="amenity"]')
+## containers for each HTTP request
+locations = ""
+these_ids = []
+
+node_list = root.findall('node')
+
+print "getting elevation data....."
+for i in range(len(node_list)):
+
+    node = node_list[i]
+    
+    ## encode locations
+    lat = node.attrib.get('lat')
+    lon = node.attrib.get('lon')
+    next = encode_location(lat, lon)
+    
+    ## amenity nodes won't be referenced in ways
+    found_amenity = node.findall('./tag[@k="amenity"]')
+    
     if not found_amenity:
-        if len(locations) + len(next) < 1800:
-            locations += next
-            # loc_count += 1 # can del later
-        else:
-            # loc_str_lengths.append(len(locations))
-            loc_strings.append(locations[:-1])
+
+        ## building encoded query strings
+        these_ids.append(node.attrib.get('id'))
+        locations += next
+        num_locations += 1
+
+        ## at length, stop building
+        if len(locations) + len(next) > 1500 or i == len(node_list)-1:
+            ## HTTP request
+            url = build_url(locations[:-1])
+            r_xml = get_elevations(url)
+            r_root = parse_results(r_xml)
+
+            http_request_count += 1
+
+            ## append elevations to root
+            root, result_count = assign_elevations(root, these_ids, r_root, result_count)
+            
+            ## reset HTTP request containers for next batch
+            these_ids = []
             locations = ""
 
-# print loc_count # can del later
-# print loc_strings
-
-url_strings = build_urls(loc_strings)
-
-for u_s in url_strings:
-    print u_s
-
-print len(url_strings)
-
-# response = urllib2.urlopen(url_strings[0])
-# html = response.read()
-
-# r_tree = ET.parse(html)
-# r_root = r_tree.getroot()
-# print "r_root", r_root
-
-# for result in r_root.iter('result'):
-#     print result.attrib.get('lat')
-#     print result.attrib.get('lng')
-#     print result.attrib.get('elevation')
+## check final results against original expected counts
+print "num of locations given: ", num_locations
+print "num of results: ", result_count
