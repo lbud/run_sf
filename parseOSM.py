@@ -1,5 +1,6 @@
 import xml.etree.ElementTree as ET
 import urllib2
+import save_data
 
 ## parse initial input XML
 
@@ -49,7 +50,6 @@ def assign_elevations(orig_root, nodes, xml_root, result_count):
         this_index += 1
     return orig_root, result_count
 
-
 ## parse XML
 
 ## containers for each HTTP request
@@ -97,3 +97,14 @@ for i in range(len(node_list)):
 ## check final results against original expected counts
 print "num of locations given: ", num_locations
 print "num of results: ", result_count
+
+if num_locations == result_count:
+    for node in node_list:
+        n_id = node.attrib.get('id')
+        n_lat = node.attrib.get('lat')
+        n_lon = node.attrib.get('lon')
+        n_elev = node.attrib.get('elev')
+        save_data.store_node(n_id, n_lat, n_lon, n_elev)
+    save_data.session.commit()
+else:
+    print "result count does not match expected count. something might be wrong here"
