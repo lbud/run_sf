@@ -4,9 +4,10 @@ import save_data
 
 ## parse initial input XML
 
-tree = ET.parse('map_sample.osm')
-root = tree.getroot()
+file_to_parse = raw_input("file > ")
 
+tree = ET.parse(file_to_parse)
+root = tree.getroot()
 
 ## initialize counters to check expected behavior
 
@@ -55,6 +56,7 @@ def assign_elevations(orig_root, nodes, xml_root, result_count):
 ## containers for each HTTP request
 locations = ""
 these_ids = []
+
 
 node_list = root.findall('node')
 
