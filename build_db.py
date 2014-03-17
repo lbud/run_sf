@@ -68,9 +68,10 @@ if data_types == "ways":
     valid_ints = []
 
     for intersection in intersections.items():
-        if intersection[1] > 2:
+        if intersection[1] > 1:
             valid_ints.append(intersection[0])
             i_id = intersection[0]
+            print i_id
             i_ints = intersection[1]
             ## find intersection location from nodes table
             i_lat, i_lon = save_data.find_intersection(i_id)

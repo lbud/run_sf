@@ -56,10 +56,9 @@ def store_edge(way_id, end_a, end_b):
     session.add(e)
     return None
 
-
-
 def find_intersection(id):
     node = session.query(Node).get(id)
     lat = node.lat
     lon = node.lon
     return lat, lon
+
