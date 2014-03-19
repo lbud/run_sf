@@ -1,8 +1,7 @@
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import create_engine, ForeignKey
-from sqlalchemy import Column, Integer, String, Float
+from sqlalchemy import create_engine, ForeignKey    
+from sqlalchemy import Column, Integer, Float
 from sqlalchemy.orm import sessionmaker, scoped_session, relationship, backref
-from operator import itemgetter
 
 ENGINE = create_engine("sqlite:///mapdata.db", echo=False)
 session = scoped_session(sessionmaker(bind=ENGINE,
@@ -11,7 +10,7 @@ session = scoped_session(sessionmaker(bind=ENGINE,
 
 Base = declarative_base()
 Base.query = session.query_property()
-# Base.metadata.create_all(ENGINE)
+
 
 class Node(Base):
     __tablename__ = "nodes"
@@ -21,6 +20,19 @@ class Node(Base):
     lon = Column(Float)
     elev = Column(Float, nullable=True)
 
+class Edge(Base):
+    __tablename__ = "edges"
+
+    id = Column(Integer, primary_key=True)
+    way_id = Column(Integer)
+    end_a_id = Column(Integer, ForeignKey('intersections.id'))
+    end_b_id = Column(Integer, ForeignKey('intersections.id'))
+
+    ends = relationship("Intersection", uselist=True, primaryjoin="or_(Edge.end_a_id==Intersection.id, "
+                                                    "Edge.end_b_id==Intersection.id)",
+                                backref="ends" )
+
+
 class Intersection(Base):
     __tablename__ = "intersections"
     id = Column(Integer, primary_key=True)
@@ -29,14 +41,9 @@ class Intersection(Base):
     lon = Column(Float, nullable=True)
     elev = Column(Float, nullable=True)
 
-
-class Edge(Base):
-    __tablename__ = "edges"
-
-    id = Column(Integer, primary_key=True)
-    way_id = Column(Integer)
-    end_a = Column(Integer)
-    end_b = Column(Integer)
+    edges = relationship("Edge", primaryjoin="or_(Intersection.id==Edge.end_a_id, "
+                                            "Intersection.id==Edge.end_b_id)",
+                                 backref="edges" )
 
 
 
@@ -62,3 +69,13 @@ def find_intersection(id):
     lon = node.lon
     return lat, lon
 
+def base_make():
+    Base.metadata.create_all(ENGINE)
+
+def get_home():
+    home = session.query(Intersection).get(65314183)
+    return home
+
+def get_edge():
+    e = session.query(Edge).get(1)
+    return e
