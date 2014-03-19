@@ -1,5 +1,5 @@
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import create_engine, ForeignKey    
+from sqlalchemy import create_engine, ForeignKey
 from sqlalchemy import Column, Integer, Float
 from sqlalchemy.orm import sessionmaker, scoped_session, relationship, backref
 
@@ -71,11 +71,3 @@ def find_intersection(id):
 
 def base_make():
     Base.metadata.create_all(ENGINE)
-
-def get_home():
-    home = session.query(Intersection).get(65314183)
-    return home
-
-def get_edge():
-    e = session.query(Edge).get(1)
-    return e
