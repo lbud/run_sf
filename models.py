@@ -1,12 +1,13 @@
-from save_data import Edge, Intersection
-import save_data as sd
+from utils.save_data import Edge, Intersection
+import utils.save_data as sd
 from math import sqrt, pow
-from utils.finding_fns import find_dist, vert_climb, find_miles
+from utils.finding_fns import find_dist, vert_climb, find_miles, vincenty, radials
 from utils.pathfinding import a_star
 
 class Route(object):
-    def __init__(self, starting_point):
-        self.starting_point = starting_point
+    def __init__(self, start, distance):
+        self.start = starting_point
+        self.distance = distance
 
     @property
     def possible_ends(self):

@@ -69,5 +69,16 @@ def find_intersection(id):
     lon = node.lon
     return lat, lon
 
+def find(lat, lon):
+    aa = session.query(Intersection).filter(Intersection.lat>lat).filter(Intersection.lon>lon).order_by(Intersection.lat+Intersection.lon).first()
+    zz = session.query(Intersection).filter(Intersection.lat<lat).filter(Intersection.lon<lon).order_by(Intersection.lat+Intersection.lon).first()
+    az = session.query(Intersection).filter(Intersection.lat>lat).filter(Intersection.lon<lon).order_by(Intersection.lat+Intersection.lon).first()
+    za = session.query(Intersection).filter(Intersection.lat<lat).filter(Intersection.lon>lon).order_by(Intersection.lat+Intersection.lon).first()
+    nodes = [aa, zz, az, za]
+    nodes = [ n for n in nodes if n ]
+    exact = lat + lon
+    best = min(nodes, key=lambda x:abs((x.lat + x.lon) - exact))
+    return best
+
 def base_make():
     Base.metadata.create_all(ENGINE)
