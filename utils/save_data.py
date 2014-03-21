@@ -63,13 +63,8 @@ def store_edge(way_id, end_a, end_b):
     session.add(e)
     return None
 
-def find_intersection(id):
-    node = session.query(Node).get(id)
-    lat = node.lat
-    lon = node.lon
-    return lat, lon
-
 def find(lat, lon):
+    """ Finds closes intersection object from database to a set of coordinates """
     aa = session.query(Intersection).filter(Intersection.lat>lat).filter(Intersection.lon>lon).order_by(Intersection.lat+Intersection.lon).first()
     zz = session.query(Intersection).filter(Intersection.lat<lat).filter(Intersection.lon<lon).order_by(Intersection.lat+Intersection.lon).first()
     az = session.query(Intersection).filter(Intersection.lat>lat).filter(Intersection.lon<lon).order_by(Intersection.lat+Intersection.lon).first()
@@ -79,6 +74,12 @@ def find(lat, lon):
     exact = lat + lon
     best = min(nodes, key=lambda x:abs((x.lat + x.lon) - exact))
     return best
+
+def find_intersection(id):
+    node = session.query(Node).get(id)
+    lat = node.lat
+    lon = node.lon
+    return lat, lon
 
 def base_make():
     Base.metadata.create_all(ENGINE)

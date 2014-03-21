@@ -73,8 +73,8 @@ class Node(object):
         #return json(self.lon, self.lat)
         pass
 
-h = Node(65314183)   # gough & post                                      elev=63
-next = Node(65303561)   # gough & sutter                                    elev=70
+h = Node(65314183)   # gough & post                                         elev=63
+n = Node(65303561)   # gough & sutter                                       elev=70
 le = Node(65319011)     # laguna & ellis -- .3 mi away (geodesic)           elev=36
 vl = Node(295191529)    # van ness & lombard -- 1 mi away (geodesic)        elev=30
 ocean = Node(65304540)  # great highway & lincoln -- 4.9 mi away (geodesic) elev=7
