@@ -54,7 +54,7 @@ def gen_radii(loc, dist):
         else:
             rads = radials(loc,i,22.5)
         valids += rads
-    return rads
+    return valids
 
 
 
