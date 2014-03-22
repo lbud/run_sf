@@ -1,5 +1,5 @@
 import xml.etree.ElementTree as ET
-import save_data
+import dbs
 
 ## parse initial input XML
 
@@ -43,10 +43,10 @@ if data_types == "nodes":
             n_lon = node.attrib.get('lon')
             # n_elev = node.attrib.get('elev')
             n_elev = None
-            save_data.store_node(n_id, n_lat, n_lon, n_elev)
+            dbs.store_node(n_id, n_lat, n_lon, n_elev)
         else:
             amenity_count += 1
-    save_data.session.commit()
+    dbs.session.commit()
 
     print "amenities: ", amenity_count
     print "total nodes: ", node_count
@@ -74,10 +74,10 @@ if data_types == "ways":
             print i_id
             i_ints = intersection[1]
             ## find intersection location from nodes table
-            i_lat, i_lon = save_data.find_intersection(i_id)
+            i_lat, i_lon = dbs.find_intersection(i_id)
             i_elev = None
-            save_data.store_intersection(i_id, i_ints, i_lat, i_lon, i_elev)
-    save_data.session.commit()
+            dbs.store_intersection(i_id, i_ints, i_lat, i_lon, i_elev)
+    dbs.session.commit()
 
 
     ## to get all ways with nodes
@@ -101,9 +101,9 @@ if data_types == "ways":
                 if len(this_edge) == 2:
                     end_a = this_edge[0]
                     end_b = this_edge[1]
-                    save_data.store_edge(way_id, end_a, end_b)
+                    dbs.store_edge(way_id, end_a, end_b)
                     this_edge = this_edge[1:]
             if i == len(intersections) - 1 and not (intersections[i] in valid_ints):
                 this_edge.append(intersections[i])
                 unfinished_edges.append(this_edge)
-    save_data.session.commit()
+    dbs.session.commit()

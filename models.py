@@ -1,7 +1,7 @@
-from utils.save_data import Edge, Intersection
-import utils.save_data as sd
+from utils.dbs import Edge, Intersection
+import utils.dbs as dbs
 from math import sqrt, pow
-from utils.finding_fns import find_dist, vert_climb, find_miles, vincenty, radials
+from utils.finding_fns import find_dist, vert_climb, find_miles, vincenty, radials, gen_radii
 from utils.pathfinding import a_star
 
 class Route(object):
@@ -34,7 +34,7 @@ class Route(object):
 class Node(object):
     def __init__(self, id):
         self.id = id
-        this = sd.session.query(Intersection).get(id)
+        this = dbs.session.query(dbs.Intersection).get(id)
         self.lat = this.lat
         self.lon = this.lon
         self.elev = this.elev
@@ -56,8 +56,9 @@ class Node(object):
             return 0
         geodesic = find_dist(last, self)
         climb = vert_climb(last,self)
-        return geodesic + pow(abs(climb),2)
+        return geodesic + pow(abs(climb),4.5)
         # TODO: tweak this so it's not such arbitrary guessing
+        # return geodesic       # keeping this here to uncomment when comparing test routes
 
     def h_value(self, end):
         climb = vert_climb(self, end)
@@ -79,4 +80,15 @@ le = Node(65319011)     # laguna & ellis -- .3 mi away (geodesic)           elev
 vl = Node(295191529)    # van ness & lombard -- 1 mi away (geodesic)        elev=30
 ocean = Node(65304540)  # great highway & lincoln -- 4.9 mi away (geodesic) elev=7
 mp = Node(1723739266)   # market & pine -- 1.6 mi (geodesic)                elev=3
-em = Node(65345229)     # green & embarcadero
+em = Node(65345229)     # green & embarcadero -- 1.7m                       elev=2.5
+ll = Node(65336684)     # lombard & lyon -- 1.5m                            elev=23
+ap = Node(65315754)     # pacific & arguello -- 1.87m                       elev=91
+fg = Node(65336114)     # greenwich & fillmore -- 1.06m                     elev=18
+gs = Node(258759451)    # geary & scott --                                  elev=45 
+
+def print_coords(a, b):
+    """ for ruote testing purposes """
+    rt = a_star(a,b)
+    for p in rt.get('path'):
+        print "%r,%r" % (p.lat, p.lon)
+    return rt

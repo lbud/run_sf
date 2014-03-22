@@ -1,6 +1,7 @@
 from geopy import distance, Point
-import save_data as sd
+import dbs
 from math import atan2, degrees, radians, sin, cos, tan, sqrt, pow, pi
+from dbs import mdb, MongoClient, SON
 
 def find_dist(x1, x2):
     """ Finds distance, in feet, between two node or intersection objects """
@@ -9,6 +10,7 @@ def find_dist(x1, x2):
     dist = distance.distance(pt1, pt2).feet
     return dist
 
+
 def find_miles(x1, x2):
     """ Finds distance, in miles, between two node or intersection objects """    
     pt1 = Point(x1.lat, x1.lon)
@@ -16,23 +18,44 @@ def find_miles(x1, x2):
     dist = distance.distance(pt1, pt2).miles
     return dist
 
+
 def vert_climb(x1,x2):
     """ Finds vertical climb (feet) between two node or intersection objects """
     return x2.elev - x1.elev
 
-def radials(x1, dist):
-    """ Returns a set of eight intersection objects in cardinal + ordinal directions
-    Args:
+
+def radials(x1, dist, offset = 0):
+    """ Returns a set of eight intersection objects in cardinal + ordinal directions (or offsets)
+        Args:)
         x1: node or intersection object
         dist: desired distance in each direction, in miles
+        offset (optional): offset angles (22.5 for tertiary directions)
     Returns:
         List of intersection objects closest to geo location in each direction
     """
     center = Point(x1.lat, x1.lon)
-    bearings = [ 0, 45, 90, 135, 180, 225, 270, 315 ]  # N NE E SE S SW W NW
+    bearings = [ b + offset for b in [0, 45, 90, 135, 180, 225, 270, 315] ]  # N NE E SE S SW W NW, or offset
     radii = [ vincenty(x1, bearing, dist) for bearing in bearings ]  # gets coordinates
-    radial_points = [ sd.find(radius[0], radius[1]) for radius in radii ]  # finds nearest intersections
+    nearest_ints = []
+    for r in radii:
+        res = dbs.mdb.command(SON([('geoNear', 'nodes'), ('near', r), ('limit', 1)]))['results'][0].get('obj')
+        resloc = res.get('loc')
+        res_id = res.get('node_id')
+        nearest_ints.append(res_id)
+    radial_points = [ dbs.session.query(dbs.Intersection).get(i) for i in nearest_ints ]
     return radial_points
+
+
+def gen_radii(loc, dist):
+    valids = []
+    for i in [ float(r)/2 for r in range(dist * 2) ]:
+        if i%1 == 0:        
+            rads = radials(loc,i)
+        else:
+            rads = radials(loc,i,22.5)
+        valids += rads
+    return rads
+
 
 
 def vincenty(x1, bearing, dist):
@@ -91,48 +114,48 @@ def vincenty(x1, bearing, dist):
 
     return (degrees(lat2), degrees(lon2))
 
-def get_angle(p1, p2):
-    """ tbd if using -- may delete """
-    lat_diff = p2.lat - p1.lat
-    lon_diff = p2.lon - p1.lon
-    angle = degrees(atan2(lon_diff,lat_diff))
-    if angle < 0:
-        angle += 360
-    return angle
+# def get_angle(p1, p2):
+#     """ tbd if using -- may delete """
+#     lat_diff = p2.lat - p1.lat
+#     lon_diff = p2.lon - p1.lon
+#     angle = degrees(atan2(lon_diff,lat_diff))
+#     if angle < 0:
+#         angle += 360
+#     return angle
 
-def convert_to_directions(angle):
-    """ tbd if using -- may delete """
-    if 337.5 < angle or angle <= 22.5:
-        return 'N'
-    if 22.5 < angle <= 67.5:
-        return 'NE'
-    if 67.5 < angle <= 112.5:
-        return 'E'
-    if 112.5 < angle <= 157.5:
-        return 'SE'
-    if 157.5 < angle <= 202.5:
-        return 'S'
-    if 202.5 < angle <= 247.5:
-        return 'SW'
-    if 247.5 < angle <= 292.5:
-        return 'W'
-    if 292.5 < angle <= 337.5:
-        return 'NW'
+# def convert_to_directions(angle):
+#     """ tbd if using -- may delete """
+#     if 337.5 < angle or angle <= 22.5:
+#         return 'N'
+#     if 22.5 < angle <= 67.5:
+#         return 'NE'
+#     if 67.5 < angle <= 112.5:
+#         return 'E'
+#     if 112.5 < angle <= 157.5:
+#         return 'SE'
+#     if 157.5 < angle <= 202.5:
+#         return 'S'
+#     if 202.5 < angle <= 247.5:
+#         return 'SW'
+#     if 247.5 < angle <= 292.5:
+#         return 'W'
+#     if 292.5 < angle <= 337.5:
+#         return 'NW'
 
 
-def find_closest(i_id):
-    """ tbd if using -- may delete """
-    global route
-    ends = find_edges(i_id)
-    ends = (e for e in ends if e not in route)
-    best = None
-    current_elev = sd.session.query(sd.Intersection).get(i_id).elev
-    for e in ends:
-        next_elev = sd.session.query(sd.Intersection).get(e).elev
-        diff = abs(current_elev - next_elev)
-        if not best:
-            best = e
-        if e < best:
-            best = e
-    route.append(best)
-    return best
+# def find_closest(i_id):
+#     """ tbd if using -- may delete """
+#     global route
+#     ends = find_edges(i_id)
+#     ends = (e for e in ends if e not in route)
+#     best = None
+#     current_elev = dbs.session.query(dbs.Intersection).get(i_id).elev
+#     for e in ends:
+#         next_elev = dbs.session.query(dbs.Intersection).get(e).elev
+#         diff = abs(current_elev - next_elev)
+#         if not best:
+#             best = e
+#         if e < best:
+#             best = e
+#     route.append(best)
+#     return best

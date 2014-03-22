@@ -2,4 +2,4 @@ build/
 env/
 etc/
 mapdata_backup.db
-.pyc
+*.pyc

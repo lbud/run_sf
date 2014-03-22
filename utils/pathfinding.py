@@ -1,4 +1,5 @@
-from save_data import Edge, Intersection
+from dbs import Edge, Intersection
+from finding_fns import find_miles as dist
 
 def a_star(start, end):
     open_set = set()
@@ -6,6 +7,8 @@ def a_star(start, end):
     current = start
     open_set.add(current)
     path = []
+    route_info = {}
+    distance = 0
 
     while open_set:
         current = min(open_set, key=lambda f:f.g + f.h_value(end))
@@ -15,8 +18,11 @@ def a_star(start, end):
         if current.id == end.id:
             while current.parent:
                 path.append(current)
+                distance += dist(current, current.parent)
                 current = current.parent
-            return path[::-1]
+            route_info['path'] = path[::-1]
+            route_info['distance'] = distance
+            return route_info
 
         for neighbor in current.ends:
             cost = current.g + neighbor.move_cost(current)
