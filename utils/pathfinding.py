@@ -9,6 +9,7 @@ def a_star(start, end):
     path = []
     route_info = {}
     distance = 0
+    edge_route = []
 
     while open_set:
         current = min(open_set, key=lambda f:f.g + f.h_value(end))
@@ -37,4 +38,5 @@ def a_star(start, end):
                 neighbor.g = cost
                 open_set.add(neighbor)
                 neighbor.parent = current
+                neighbor.from_way = neighbor.find_from_way(neighbor.parent)
     return None

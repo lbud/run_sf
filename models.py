@@ -5,9 +5,13 @@ from utils.finding_fns import find_dist, vert_climb, find_miles, vincenty, radia
 from utils.pathfinding import a_star
 
 class Route(object):
-    def __init__(self, start, distance):
-        self.start = starting_point
-        self.distance = distance
+    # def __init__(self, start, distance):
+    def __init__(self, start, end):
+        self.start = start
+        # self.distance = distance
+        self.end = end
+        self.path = a_star(start, end)
+        self.clean = None
 
     @property
     def possible_ends(self):
@@ -18,12 +22,19 @@ class Route(object):
         pass
 
     @property
-    def path(self):
-        # call run_astar() for each start/end combo
-        # for now, just calculate path without elev heuristic
-        ##
-        # return [Node()s]
-        pass
+    def clean_path(self):
+        if not self.clean:
+            full_path = self.path.get('path')
+            clean_path = [full_path[0]]
+            for i in range(1, len(full_path)-1):
+                if full_path[i].from_way == full_path[i-1].from_way and full_path[i].from_way == full_path[i+1].from_way:
+                    continue
+                else:
+                    clean_path.append(full_path[i])
+            clean_path.append(full_path[-1])
+            self.clean = clean_path
+            return self.clean
+        return self.clean
 
     #@property?
     def render_path(self):
@@ -40,6 +51,7 @@ class Node(object):
         self.elev = this.elev
         self.edges = this.edges
         self.parent = None
+        self.from_way = None
         self.g = 0
 
     @property
@@ -51,12 +63,17 @@ class Node(object):
                     ends.append(Node(end.id))
         return ends
 
+    def find_from_way(self, parent):
+        # for edge in self.edges:
+        shared_edge = filter(lambda x: x in self.edges, parent.edges)
+        return shared_edge[0].way_id
+
     def move_cost(self, last): # for computing g-scores
         if not last:
             return 0
         geodesic = find_dist(last, self)
         climb = vert_climb(last,self)
-        return geodesic + pow(abs(climb),4.5)
+        return geodesic + pow(abs(climb),2.5)
         # TODO: tweak this so it's not such arbitrary guessing
         # return geodesic       # keeping this here to uncomment when comparing test routes
 
@@ -87,7 +104,7 @@ fg = Node(65336114)     # greenwich & fillmore -- 1.06m                     elev
 gs = Node(258759451)    # geary & scott --                                  elev=45 
 
 def print_coords(a, b):
-    """ for ruote testing purposes """
+    """ for route testing purposes """
     rt = a_star(a,b)
     for p in rt.get('path'):
         print "%r,%r" % (p.lat, p.lon)
