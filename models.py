@@ -36,6 +36,17 @@ class Route(object):
             return self.clean
         return self.clean
 
+    @property
+    def render(self):
+        coords = ""
+        for n in self.clean_path:
+            n_string = "[%r,%r]," % (n.lat, n.lon)
+            coords += n_string
+        for n in self.clean_path:
+            print "[%r,%r]," % (n.lat,n.lon)
+        return coords
+
+
     #@property?
     def render_path(self):
         # for each node:
@@ -103,9 +114,4 @@ ap = Node(65315754)     # pacific & arguello -- 1.87m                       elev
 fg = Node(65336114)     # greenwich & fillmore -- 1.06m                     elev=18
 gs = Node(258759451)    # geary & scott --                                  elev=45 
 
-def print_coords(a, b):
-    """ for route testing purposes """
-    rt = a_star(a,b)
-    for p in rt.get('path'):
-        print "%r,%r" % (p.lat, p.lon)
-    return rt
+
