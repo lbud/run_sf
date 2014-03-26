@@ -36,44 +36,48 @@ class Route(object):
             return self.clean
         return self.clean
 
-    #@property?
-    def render_path(self):
-        # for each node:
-            # node.render()
-        pass
+    @property
+    def render(self):
+        render_locs = []
+        for c in self.clean_path:
+            render_locs.append(c.loc)
+        return render_locs
 
 class Node(object):
     def __init__(self, id):
         self.id = id
-        this = dbs.session.query(dbs.Intersection).get(id)
-        self.lat = this.lat
-        self.lon = this.lon
-        self.elev = this.elev
-        self.edges = this.edges
+        this = dbs.mdb.nodes.find_one({'node_id': id})
+        self.loc = this.get('loc')
+        self.lat = self.loc[0]
+        self.lon = self.loc[1]
+        self.elev = this.get('elev')
+        self.end_ids = this.get('ends')
+        self.edges = this.get('edges')
+        self.ways = this.get('ways')
         self.parent = None
         self.from_way = None
         self.g = 0
 
     @property
     def ends(self):
-        ends = []
-        for edge in self.edges:
-            for end in edge.ends:
-                if end.id != self.id:
-                    ends.append(Node(end.id))
+        ends = [Node(e) for e in self.end_ids]
+        # for edge in self.edges:
+        #     for end in edge.ends:
+        #         if end.id != self.id:
+        #             ends.append(Node(end.id))
         return ends
 
     def find_from_way(self, parent):
         # for edge in self.edges:
-        shared_edge = filter(lambda x: x in self.edges, parent.edges)
-        return shared_edge[0].way_id
+        shared_edge = filter(lambda x: x in self.ways, parent.ways)
+        return shared_edge[0]
 
     def move_cost(self, last): # for computing g-scores
         if not last:
             return 0
         geodesic = find_dist(last, self)
         climb = vert_climb(last,self)
-        return geodesic + pow(abs(climb),2.5)
+        return geodesic + pow(abs(climb),3)
         # TODO: tweak this so it's not such arbitrary guessing
         # return geodesic       # keeping this here to uncomment when comparing test routes
 

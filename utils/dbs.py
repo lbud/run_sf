@@ -2,7 +2,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine, ForeignKey
 from sqlalchemy import Column, Integer, Float
 from sqlalchemy.orm import sessionmaker, scoped_session, relationship, backref
-from pymongo import MongoClient, GEO2D
+from pymongo import MongoClient, GEO2D, GEOSPHERE
 from bson.objectid import ObjectId
 from bson.son import SON
 
@@ -78,7 +78,7 @@ def base_make():
 ### MONGODB
 ###
 
-mdb = MongoClient().intersections
+mdb = MongoClient('mongodb://localhost:27017').intersections
 
 mdb.nodes.create_index([("loc", GEO2D)])
 
@@ -92,5 +92,14 @@ def mongo_migrate():
         node_id = i.id
         lat = i.lat
         lon = i.lon
-        ints.append({"node_id": node_id, "loc": [lat, lon]})
-    dbs.nodes.insert(ints)
+        elev = i.elev #new
+        ends = []
+        for e in i.edges:
+            for other in e.ends:
+                if i != other:
+                    ends.append(other.id)
+        edges = [e.id for e in i.edges]
+        ways = [e.way_id for e in i.edges]
+        ints.append({"node_id": node_id, "loc": [lat, lon], "elev": elev, "ends": ends, "edges": edges, "ways": ways})
+    nodes.insert(ints)
+    return "Complete"
