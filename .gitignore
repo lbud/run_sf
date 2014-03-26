@@ -3,3 +3,4 @@ env/
 etc/
 mapdata_backup.db
 *.pyc
+.env

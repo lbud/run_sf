@@ -1,16 +1,19 @@
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import create_engine, ForeignKey
-from sqlalchemy import Column, Integer, Float
+from sqlalchemy import create_engine, ForeignKey, func
+from sqlalchemy import Column, Integer, Float, BigInteger
 from sqlalchemy.orm import sessionmaker, scoped_session, relationship, backref
+from geoalchemy2 import Geometry, Geography, WKTElement
 from pymongo import MongoClient, GEO2D
 from bson.objectid import ObjectId
 from bson.son import SON
+# import config
 
 ###
-### SQLITE
+### POSTGIS
 ###
 
-ENGINE = create_engine("sqlite:///mapdata.db", echo=False)
+
+ENGINE = create_engine("postgres://lbudorick@localhost/run_sf", echo=False)
 session = scoped_session(sessionmaker(bind=ENGINE,
                                       autocommit=False,
                                       autoflush=False))
@@ -18,41 +21,44 @@ session = scoped_session(sessionmaker(bind=ENGINE,
 Base = declarative_base()
 Base.query = session.query_property()
 
-
-class Node(Base):
+class GNode(Base):
     __tablename__ = "nodes"
 
     id = Column(Integer, primary_key=True)
-    lat = Column(Float)
-    lon = Column(Float)
+    loc = Column(Geography(geometry_type='POINT', srid=4326))
     elev = Column(Float, nullable=True)
 
 
-class Edge(Base):
+class GEdge(Base):
     __tablename__ = "edges"
 
     id = Column(Integer, primary_key=True)
     way_id = Column(Integer)
-    end_a_id = Column(Integer, ForeignKey('intersections.id'))
-    end_b_id = Column(Integer, ForeignKey('intersections.id'))
+    end_a_id = Column(BigInteger, ForeignKey('intersections.id'))
+    end_b_id = Column(BigInteger, ForeignKey('intersections.id'))
 
-    ends = relationship("Intersection", uselist=True, primaryjoin="or_(Edge.end_a_id==Intersection.id, "
-                                                    "Edge.end_b_id==Intersection.id)",
+    ends = relationship("GIntersection", uselist=True, primaryjoin="or_(GEdge.end_a_id==GIntersection.id, "
+                                                    "GEdge.end_b_id==GIntersection.id)",
                                 backref="ends" )
 
 
-class Intersection(Base):
+class GIntersection(Base):
     __tablename__ = "intersections"
-    id = Column(Integer, primary_key=True)
+    id = Column(BigInteger, primary_key=True)
     ints = Column(Integer)
     lat = Column(Float, nullable=True)
     lon = Column(Float, nullable=True)
+    loc = Column(Geometry(geometry_type='POINT', srid=4326))
     elev = Column(Float, nullable=True)
 
-    edges = relationship("Edge", primaryjoin="or_(Intersection.id==Edge.end_a_id, "
-                                            "Intersection.id==Edge.end_b_id)",
+    edges = relationship("GEdge", primaryjoin="or_(GIntersection.id==GEdge.end_a_id, "
+                                            "GIntersection.id==GEdge.end_b_id)",
                                  backref="edges" )
 
+def coords_tuple(n):
+    location = session.query(func.ST_AsLatLonText(n.loc,'D.DDDDDDD')).first()[0].split()
+    tup = ( float(location[0]), float(location[1]) )
+    return tup
 
 def store_node(id, lat, lon, elev):
     n = Node(id=id, lat=lat, lon=lon, elev=elev)
@@ -61,17 +67,22 @@ def store_node(id, lat, lon, elev):
     return None
 
 def store_intersection(id, ints, lat, lon, elev):
-    i = Intersection(id=id, ints=ints, lat=lat, lon=lon, elev=elev)
+    loc = 'POINT(%r,%r)' % (lon,lat)
+    i = Intersection(id=id, ints=ints, loc=WKTElement(loc,srid=4326), elev=elev)
     session.add(i)
     return None
 
 def store_edge(way_id, end_a, end_b):
-    e = Edge(way_id=way_id, end_a=end_a, end_b=end_b)
+    e = Edge(way_id=way_id, end_a_id=end_a, end_b_id=end_b)
     session.add(e)
     return None
 
-def base_make():
-    Base.metadata.create_all(ENGINE)
+def base_make(en):
+    if en=="postgres":
+        Base.metadata.create_all(ENGINE)
+    else:
+        print "no"
+    return None
 
 
 ###

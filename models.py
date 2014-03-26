@@ -1,4 +1,4 @@
-from utils.dbs import Edge, Intersection
+from utils.dbs import GIntersection
 import utils.dbs as dbs
 from math import sqrt, pow
 from utils.finding_fns import find_dist, vert_climb, find_miles, vincenty, radials, gen_radii
@@ -36,16 +36,23 @@ class Route(object):
             return self.clean
         return self.clean
 
-    #@property?
-    def render_path(self):
-        # for each node:
-            # node.render()
-        pass
+    @property
+    def render(self):
+        coords = ""
+        for n in self.clean_path:
+            # n_loc = dbs.coords_tuple(n)
+            n_string = "[%r,%r]," % (this.lon, this.lat)#n_loc[0],n_loc[1])
+            coords += n_string
+        return coords
+
+
 
 class Node(object):
     def __init__(self, id):
         self.id = id
-        this = dbs.session.query(dbs.Intersection).get(id)
+        this = dbs.session.query(dbs.GIntersection).get(id)
+        self.loc = this.loc
+        loc_tup = dbs.coords_tuple(self)
         self.lat = this.lat
         self.lon = this.lon
         self.elev = this.elev
@@ -64,7 +71,6 @@ class Node(object):
         return ends
 
     def find_from_way(self, parent):
-        # for edge in self.edges:
         shared_edge = filter(lambda x: x in self.edges, parent.edges)
         return shared_edge[0].way_id
 
@@ -73,14 +79,14 @@ class Node(object):
             return 0
         geodesic = find_dist(last, self)
         climb = vert_climb(last,self)
-        return geodesic + pow(abs(climb),2.5)
+        return geodesic + pow(abs(climb),3)
         # TODO: tweak this so it's not such arbitrary guessing
         # return geodesic       # keeping this here to uncomment when comparing test routes
 
     def h_value(self, end):
-        climb = vert_climb(self, end)
+        # climb = vert_climb(self, end)
         geodesic = find_dist(self,end)
-        return sqrt(pow(climb,2) + pow(geodesic,2))
+        return geodesic
 
     def is_in(self, other_set):
         if True in {self.id == o.id for o in other_set}:
@@ -103,9 +109,4 @@ ap = Node(65315754)     # pacific & arguello -- 1.87m                       elev
 fg = Node(65336114)     # greenwich & fillmore -- 1.06m                     elev=18
 gs = Node(258759451)    # geary & scott --                                  elev=45 
 
-def print_coords(a, b):
-    """ for route testing purposes """
-    rt = a_star(a,b)
-    for p in rt.get('path'):
-        print "%r,%r" % (p.lat, p.lon)
-    return rt
+
