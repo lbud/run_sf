@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Route Map</title>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <style>
+      html, body, #map-canvas {
+        height: 100%;
+        margin: 0px;
+        padding: 0px
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map-canvas"></div>
+
+        <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
+    <script>
+        function initialize() {
+
+        var latlng = new google.maps.LatLng(37.7858224, -122.4244381)
+        var mapStyle = [
+            {"featureType": "water","elementType": "geometry","stylers": [{ "hue": "#0066ff" },{ "lightness": -20 },{ "saturation": -33 },{ "gamma": 0.77 }]},
+            {"featureType": "water","elementType": "labels","stylers": [{ "visibility": "off" }]},
+            {"featureType": "poi.park","elementType": "geometry","stylers": [{ "hue": "#00ff00" },{ "lightness": 58 },{ "gamma": 0.3 },{ "saturation": 4 }]},
+            {"featureType": "transit","stylers": [{ "visibility": "off" }]},
+            {"featureType": "poi.business", "elementType": "labels", "stylers": [{ "visibility": "off" }]},
+            {"featureType": "road","elementType": "geometry.stroke","stylers": [{ "visibility": "off" }]},
+            {"featureType": "road.highway.controlled_access","stylers": [{ "visibility": "simplified" }]},
+            {"featureType": "road.highway","elementType": "geometry","stylers": [{ "hue": "#ffbb00" },{ "saturation": -5 },{ "lightness": 47 }, { "gamma":.49 }]},
+            {"featureType": "road.highway.controlled_access","elementType": "geometry","stylers": [{ "hue": "#ffbb00" },{ "saturation": -5 },{ "lightness": 47 }, { "gamma":1 }]},
+            {"featureType": "road.highway.controlled_access","elementType": "labels","stylers": [{ "visibility": "off" }]},
+            {"featureType": "poi.park","stylers": [{"visibility": "simplified"}]},
+            {"featureType": "poi.school","stylers": [{"visibility": "simplified"}]},
+            {"featureType": "administrative.neighborhood","stylers": [{"visibility": "off"}]},
+       ];
+
+
+
+        var mapOptions = {
+            zoom: 14,
+            center: latlng,
+            mapTypeId: google.maps.MapTypeId.ROADMAP,
+            styles: mapStyle
+        };
+
+        map = new google.maps.Map(document.getElementById('map-canvas'),
+            mapOptions);
+
+        var rendererOptions = {
+            map: map,
+            // markerOptions: { visible: false },
+            suppressMarkers: true,
+            polylineOptions: {
+                strokeColor: "#ff620c", //ff8e2b
+                strokeWeight: 7,
+                strokeOpacity: .75
+            }
+        };
+        directionsDisplay = new google.maps.DirectionsRenderer(rendererOptions);
+
+        directionsService = new google.maps.DirectionsService();
+    
+        var stops = [
+
+
+[37.792408,-122.398588],[37.792108,-122.400933],[37.792018,-122.401638],[37.791899,-122.402571],[37.7923852,-122.4026711],[37.794666,-122.403139],[37.795066,-122.403221],[37.7955322,-122.4033157],[37.7960831,-122.4041206],[37.7963108,-122.4044223],[37.7963691,-122.4045073],[37.7969028,-122.4052959],[37.797071,-122.4055352],[37.7975169,-122.4061825],[37.797566,-122.4063073],[37.7978635,-122.4067337],[37.7981305,-122.4070756],[37.798228,-122.4072165],[37.7995071,-122.4090121],[37.7995485,-122.4090205],[37.8003235,-122.4101555],[37.8004838,-122.410383],[37.8008827,-122.4109576],[37.8011362,-122.4113295],[37.802184,-122.412908],[37.802743,-122.413719],[37.8033994,-122.4146703],[37.8033772,-122.414843],[37.8036672,-122.4151484],[37.8039511,-122.4155532],[37.80517,-122.417226],[37.805977,-122.418381],[37.8062737,-122.4188269],[37.8067816,-122.419569],[37.8067619,-122.4197243],[37.8066553,-122.4205618],[37.8065934,-122.4210311],[37.8064396,-122.4221962],[37.8064068,-122.4224445],[37.806222,-122.423845],[37.8062027,-122.4239934],[37.806306,-122.4243542],[37.8065052,-122.4256547],[37.8059351,-122.4255448],[37.8050726,-122.4253651],[37.804138,-122.4251739],[37.8041117,-122.4253738],[37.8035291,-122.4300593],[37.8034274,-122.4308653],[37.8032748,-122.4316861],[37.8032451,-122.4318845],[37.802519,-122.4318528],[37.8023088,-122.43187],[37.8015696,-122.4319043],[37.8013738,-122.4318634],[37.8012622,-122.4327429],[37.8012349,-122.4329578],[37.8007729,-122.432864],[37.8003142,-122.432786],[37.8002135,-122.4327673],[37.8000101,-122.4344061],[37.7996328,-122.4343283],[37.799419,-122.435961],[37.798952,-122.435866],    
+
+        ];
+
+        var batches = [];
+        var itemsPerBatch = 10; // google API max - 1 start, 1 stop, and 8 waypoints
+        var itemsCounter = 0;
+        var wayptsExist = stops.length > 0;
+         
+        while (wayptsExist) {
+            var subBatch = [];
+            var subitemsCounter = 0;
+         
+            for (var j = itemsCounter; j < stops.length; j++) {
+                subitemsCounter++;
+                subBatch.push({
+                    location: new window.google.maps.LatLng(stops[j][0], stops[j][1]),
+                    stopover: false
+                });
+                if (subitemsCounter == itemsPerBatch)
+                    break;
+            }
+         
+            itemsCounter += subitemsCounter;
+            batches.push(subBatch);
+            wayptsExist = itemsCounter < stops.length;
+            // If it runs again there are still points. Minus 1 before continuing to 
+            // start up with end of previous tour leg
+            itemsCounter--;
+        }
+
+
+        // function calcRoute(batches, directionsService, directionsDisplay) { 
+        var combinedResults;
+        var unsortedResults = [{}]; // to hold the counter and the results themselves as they come back, to later sort
+        var directionsResultsReturned = 0;
+         
+        for (var k = 0; k < batches.length; k++) {
+            var lastIndex = batches[k].length - 1;
+            var start = batches[k][0].location;
+            var end = batches[k][lastIndex].location;
+             
+            // trim first and last entry from array
+            var waypts = [];
+            waypts = batches[k];
+            waypts.splice(0, 1);
+            waypts.splice(waypts.length - 1, 1);
+             
+            var request = {
+                origin : start,
+                destination : end,
+                waypoints : waypts,
+                travelMode : window.google.maps.TravelMode.WALKING
+            };
+            (function (kk) {
+                directionsService.route(request, function (result, status) {
+                    if (status == window.google.maps.DirectionsStatus.OK) {
+                         
+                        var unsortedResult = {
+                            order : kk,
+                            result : result
+                        };
+                        unsortedResults.push(unsortedResult);
+                         
+                        directionsResultsReturned++;
+                        console.log(unsortedResult) 
+                        console.log(directionsResultsReturned)
+                        console.log(batches.length)
+
+                        if (directionsResultsReturned == batches.length || directionsResultsReturned == 10) // we've received all the results. put to map
+                        {
+                            // sort the returned values into their correct order
+                            unsortedResults.sort(function (a, b) {
+                                return parseFloat(a.order) - parseFloat(b.order);
+                            });
+                            var count = 0;
+                            for (var key in unsortedResults) {
+                                if (unsortedResults[key].result != null) {
+                                    if (unsortedResults.hasOwnProperty(key)) {
+                                        if (count == 0) // first results. new up the combinedResults object
+                                            combinedResults = unsortedResults[key].result;
+                                        else {
+                                            // only building up legs, overview_path, and bounds in my consolidated object. This is not a complete
+                                            // directionResults object, but enough to draw a path on the map, which is all I need
+                                            combinedResults.routes[0].legs = combinedResults.routes[0].legs.concat(unsortedResults[key].result.routes[0].legs);
+                                            combinedResults.routes[0].overview_path = combinedResults.routes[0].overview_path.concat(unsortedResults[key].result.routes[0].overview_path);
+                                             
+                                            combinedResults.routes[0].bounds = combinedResults.routes[0].bounds.extend(unsortedResults[key].result.routes[0].bounds.getNorthEast());
+                                            combinedResults.routes[0].bounds = combinedResults.routes[0].bounds.extend(unsortedResults[key].result.routes[0].bounds.getSouthWest());
+                                        }
+                                        count++;
+                                    }
+                                }
+                            }
+                            directionsDisplay.setDirections(combinedResults);
+                        }
+                    }
+                });
+            })(k);
+        }
+        // }
+    };
+    google.maps.event.addDomListener(window, 'load', initialize);
+
+    </script>
+
+  </body>
+</html>
