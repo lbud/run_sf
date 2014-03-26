@@ -19,6 +19,21 @@ def find_miles(x1, x2):
     return dist
 
 
+# def find_dist(x1, x2):
+#     """ Finds distance, in feet, between two node or intersection objects """
+#     dist_meters = dbs.session.query(dbs.func.ST_Distance_Sphere(x1.loc,x2.loc)).first()[0]
+#     dist_feet = dist_meters * 3.28084
+#     return dist_feet
+
+
+# def find_miles(x1, x2):
+#     """ Finds distance, in miles, between two node or intersection objects """    
+#     dist_meters = dbs.session.query(dbs.func.ST_Distance_Sphere(x1.loc,x2.loc)).first()[0]
+#     dist_miles = dist_meters / 1609.34
+#     return dist_miles
+
+
+
 def vert_climb(x1,x2):
     """ Finds vertical climb (feet) between two node or intersection objects """
     return x2.elev - x1.elev
