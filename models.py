@@ -72,7 +72,8 @@ class Node(object):
 
     def find_from_way(self, parent):
         shared_edge = filter(lambda x: x in self.edges, parent.edges)
-        return shared_edge[0].way_id
+        if shared_edge:
+            return shared_edge[0].way_id
 
     def move_cost(self, last): # for computing g-scores
         if not last:

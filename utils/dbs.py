@@ -3,9 +3,9 @@ from sqlalchemy import create_engine, ForeignKey, func
 from sqlalchemy import Column, Integer, Float, BigInteger
 from sqlalchemy.orm import sessionmaker, scoped_session, relationship, backref
 from geoalchemy2 import Geometry, Geography, WKTElement
-from pymongo import MongoClient, GEO2D
-from bson.objectid import ObjectId
-from bson.son import SON
+# from pymongo import MongoClient, GEO2D
+# from bson.objectid import ObjectId
+# from bson.son import SON
 # import config
 
 ###
@@ -89,19 +89,19 @@ def base_make(en):
 ### MONGODB
 ###
 
-mdb = MongoClient().intersections
+# mdb = MongoClient().intersections
 
-mdb.nodes.create_index([("loc", GEO2D)])
+# mdb.nodes.create_index([("loc", GEO2D)])
 
-nodes = mdb["nodes"]
+# nodes = mdb["nodes"]
 
-def mongo_migrate():
-    """ Stores intersections from sqlite db in mongodb """
-    int_query = session.query(Intersection).all()
-    ints = []
-    for i in int_query:
-        node_id = i.id
-        lat = i.lat
-        lon = i.lon
-        ints.append({"node_id": node_id, "loc": [lat, lon]})
-    dbs.nodes.insert(ints)
+# def mongo_migrate():
+#     """ Stores intersections from sqlite db in mongodb """
+#     int_query = session.query(Intersection).all()
+#     ints = []
+#     for i in int_query:
+#         node_id = i.id
+#         lat = i.lat
+#         lon = i.lon
+#         ints.append({"node_id": node_id, "loc": [lat, lon]})
+#     dbs.nodes.insert(ints)
