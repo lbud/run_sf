@@ -41,7 +41,7 @@ class Route(object):
         coords = ""
         for n in self.clean_path:
             # n_loc = dbs.coords_tuple(n)
-            n_string = "[%r,%r]," % (this.lon, this.lat)#n_loc[0],n_loc[1])
+            n_string = "[%r,%r]," % (n.lat, n.lon)#n_loc[0],n_loc[1])
             coords += n_string
         return coords
 
