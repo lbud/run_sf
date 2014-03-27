@@ -3,7 +3,7 @@ from sqlalchemy import create_engine, ForeignKey, func
 from sqlalchemy import Column, Integer, Float, BigInteger
 from sqlalchemy.orm import sessionmaker, scoped_session, relationship, backref
 from geoalchemy2 import Geometry, Geography, WKTElement
-# from ../config.py import DB_URI
+from config import DB_URI
 # from pymongo import MongoClient, GEO2D
 # from bson.objectid import ObjectId
 # from bson.son import SON
@@ -14,7 +14,7 @@ from geoalchemy2 import Geometry, Geography, WKTElement
 ###
 
 
-ENGINE = create_engine("postgres://lbudorick@localhost/run_sf", echo=False)
+ENGINE = create_engine(DB_URI, echo=False)
 session = scoped_session(sessionmaker(bind=ENGINE,
                                       autocommit=False,
                                       autoflush=False))
