@@ -3,10 +3,11 @@ from sqlalchemy import create_engine, ForeignKey, func
 from sqlalchemy import Column, Integer, Float, BigInteger
 from sqlalchemy.orm import sessionmaker, scoped_session, relationship, backref
 from geoalchemy2 import Geometry, Geography, WKTElement
+# from ../config.py import DB_URI
 # from pymongo import MongoClient, GEO2D
 # from bson.objectid import ObjectId
 # from bson.son import SON
-# import config
+
 
 ###
 ### POSTGIS
