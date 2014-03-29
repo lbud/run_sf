@@ -83,9 +83,14 @@ h2 {
   border-radius: 50%;
   display: block;
   position: relative;
-  /*background-image: ;*/
+  /*background-image: "logo.png";*/
   margin: auto auto 10px;
   border: 5px solid #f7f7f7;
+}
+#logo img {
+  margin: 4px auto auto;
+  display: block;
+  position: relative;
 }
 label {
   float: left;

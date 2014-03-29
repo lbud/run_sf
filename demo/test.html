@@ -15,7 +15,7 @@
                 <div id="title">
                     <h1>run sf</h1>
                     <h2>run smarter, not harder</h2>
-                    <div id="logo"></div>
+                    <div id="logo"><img src="logo.png"></div>
                 </div>
                 <label>start:</label><input type="text" class="formfield" placeholder="starting address" name="start" id="start"><br/>
                 <label>distance:</label><input type="text" class="formfield" placeholder="" name="end" id="distance"><span class="small">miles</span><br/>
@@ -40,5 +40,11 @@
         <script src="https://code.jquery.com/jquery.js"></script>
         <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
         <script src="basemap.js"></script>
+        <script>
+        $('#go').click(function() {
+            $('#formwrapper').remove();
+            $('#loader').css('display','block');
+        });
+        </script>
     </body>
 </html>
