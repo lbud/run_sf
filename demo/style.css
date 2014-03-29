@@ -1,0 +1,391 @@
+html, body, #map-canvas {
+  height: 100%;
+  margin: 0px;
+  padding: 0px
+}
+body {
+  font-family: Oxygen, sans-serif;
+  font-weight: 300;
+  font-size: 18px;
+}
+h1 {
+  font-size: 32px;
+  text-align: center;
+  font-weight: 300;
+  text-transform: uppercase;
+  margin: 10px;
+}
+h2 {
+  font-size: 15px;
+  text-align: center;
+  font-weight: 400;
+  margin-bottom: 15px;
+  font-style: italic;
+}
+
+#map-canvas {
+  z-index: 10;
+}
+#overlay {
+  height: 100%;
+  width: 100%;
+  margin: 0px;
+  padding: 0px;
+  z-index: 1000;
+  display: block;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background-color: rgba(0,0,0,.7);
+}
+
+.centered {  
+  margin: auto;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  position: absolute;
+}
+
+/* in which we deal with the form: */
+#formwrapper {
+  z-index: 100000;
+  display: block;
+  /*background-color: #f7f7f7;*/
+  width: 350px;
+  height: 200px;
+  border-radius: 7px;
+  box-shadow: 0px 8px 6px 1px #333;
+  padding: 10px;
+  top: 50px;
+  background-image: -moz-radial-gradient(50% 10px, circle closest-corner, rgba(0, 0, 0, 0) 0, rgba(0, 0, 0, 0) 30px, transparent 31px, #f7f7f7 32px);
+  background-image: -webkit-radial-gradient(50% 10px, circle closest-corner, rgba(0, 0, 0, 0) 0, rgba(0, 0, 0, 0) 30px, transparent 31px, #f7f7f7 32px);
+  background-image: -ms-radial-gradient(50% 10px, circle closest-corner, rgba(0, 0, 0, 0) 0, rgba(0, 0, 0, 0) 30px, transparent 31px, #f7f7f7 32px);
+  background-image: -o-radial-gradient(50% 10px, circle closest-corner, rgba(0, 0, 0, 0) 0, rgba(0, 0, 0, 0) 30px, transparent 31px, #f7f7f7 32px);
+
+}
+#form {
+  top: -131px;
+  position: relative;
+}
+#title {
+  color: #fff;
+  margin-left: auto;
+  margin-right: auto;
+  display: inline;
+  /*top: -100px;*/
+  position: relative;
+}
+#logo {
+  height: 60px;
+  width: 60px;
+  border-radius: 50%;
+  display: block;
+  position: relative;
+  /*background-image: ;*/
+  margin: auto auto 10px;
+  border: 5px solid #f7f7f7;
+}
+label {
+  float: left;
+  margin: 14px 10px auto auto;
+  font-size: 14px;
+  text-transform: uppercase;
+}
+.small {
+  margin-left: 6px;
+  color: #565656;
+  font-size: 14px;
+  font-weight: 300;
+}
+
+button {
+  position: relative;
+  text-transform: uppercase;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: Oxygen, sans-serif;
+  height: 2.5em;
+  background-color: #0066ff;
+  border: 0px solid;
+  border-radius: 5px;
+  box-shadow: 0px 4px rgba(0,40,100,.8);
+  color: #fff;
+  padding: 10px 30px;
+  margin: 10px auto;
+  display: block;
+  position: relative;
+  -webkit-transition: background-color ease-in-out .08s;
+  -o-transition: background-color ease-in-out .08s;
+  transition: background-color ease-in-out .08s;
+}
+
+button:hover {
+  box-shadow: 0px 3px rgba(0,40,100,.8);
+  top: 1px;
+}
+button:focus {
+  outline: none;
+}
+button:active {
+  background-color: #005CE5; 
+}
+
+.formfield {
+  height: 18px;
+  width: 80%;
+  padding: 6px 6px;
+  margin: 8px auto;
+  position: relative;
+  line-height: 1.4em;
+  color: #555;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+  -webkit-transition: border-color ease-in-out .1s, -webkit-box-shadow ease-in-out .1s;
+  -o-transition: border-color ease-in-out .1s, box-shadow ease-in-out .1s;
+  transition: border-color ease-in-out .1s, box-shadow ease-in-out .1s;
+}
+
+.formfield:focus {
+  border-color: rgba(0,40,100,.6);
+  outline: 0;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 4px rgba(0,40,100,.4);
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 4px rgba(0,40,100,.4);
+}
+#distance {
+  width: 30px;
+}
+#lat, #lon {
+  display: none;
+}
+
+/* in which we deal with the spinner -- 100% thanks to this guy http://tympanus.net/codrops/2012/11/14/creative-css-loading-animations */
+#loader {
+  width: 400px;
+  height: 135px;
+  z-index: 1000000;
+  display: none;
+}
+.spinner {
+  /*display: none;*/
+  font-size: 100px;
+  width: 1em;
+  height: 1em;
+  list-style: none;
+  border-radius: 50%;
+  border: .01em solid rgba(175,175,175,.1);
+  padding: 0px;
+  margin: auto;
+  position: relative;
+}
+.spinner li {
+  width: .2em;
+  height: .2em;
+  position: absolute;
+  border-radius: 50%;
+
+}
+.spinner li:nth-child(1) {
+    left: 50%;
+    top: 0;
+    margin: 0 0 0 -.1em;
+    background: #ffbb00;
+    -webkit-transform-origin: 50% 250%;
+    -moz-transform-origin: 50% 250%;
+    -ms-transform-origin: 50% 250%;
+    -o-transform-origin: 50% 250%;
+    transform-origin: 50% 250%;
+    -webkit-animation: 
+        rota 1.13s linear infinite,
+        opa 3.67s ease-in-out infinite alternate;
+    -moz-animation: 
+        rota 1.13s linear infinite,
+        opa 3.67s ease-in-out infinite alternate;
+    -ms-animation: 
+        rota 1.13s linear infinite,
+        opa 3.67s ease-in-out infinite alternate;
+    -o-animation: 
+        rota 1.13s linear infinite,
+        opa 3.67s ease-in-out infinite alternate;
+    animation: 
+        rota 1.13s linear infinite,
+        opa 3.67s ease-in-out infinite alternate;
+}
+.spinner li:nth-child(2) {
+    top: 50%; 
+    right: 0;
+    margin: -.1em 0 0 0;
+    background: #0066ff;
+    -webkit-transform-origin: -150% 50%;
+    -moz-transform-origin: -150% 50%;
+    -ms-transform-origin: -150% 50%;
+    -o-transform-origin: -150% 50%;
+    transform-origin: -150% 50%;
+    -webkit-animation: 
+        rota 1.86s linear infinite,
+        opa 4.29s ease-in-out infinite alternate;
+    -moz-animation: 
+        rota 1.86s linear infinite,
+        opa 4.29s ease-in-out infinite alternate;
+    -ms-animation: 
+        rota 1.86s linear infinite,
+        opa 4.29s ease-in-out infinite alternate;
+    -o-animation: 
+        rota 1.86s linear infinite,
+        opa 4.29s ease-in-out infinite alternate;
+    animation: 
+        rota 1.86s linear infinite,
+        opa 4.29s ease-in-out infinite alternate;
+}
+.spinner li:nth-child(3) {
+    left: 50%; 
+    bottom: 0;
+    margin: 0 0 0 -.1em;
+    background: #00FF65;
+    -webkit-transform-origin: 50% -150%;
+    -moz-transform-origin: 50% -150%;
+    -ms-transform-origin: 50% -150%;
+    -o-transform-origin: 50% -150%;
+    transform-origin: 50% -150%;
+    -webkit-animation: 
+        rota 1.45s linear infinite,
+        opa 5.12s ease-in-out infinite alternate;
+    -moz-animation: 
+        rota 1.45s linear infinite,
+        opa 5.12s ease-in-out infinite alternate;
+    -ms-animation: 
+        rota 1.45s linear infinite,
+        opa 5.12s ease-in-out infinite alternate;
+    -o-animation: 
+        rota 1.45s linear infinite,
+        opa 5.12s ease-in-out infinite alternate;
+    animation: 
+        rota 1.45s linear infinite,
+        opa 5.12s ease-in-out infinite alternate;
+}
+.spinner li:nth-child(4) {
+    top: 50%; 
+    left 0;
+    margin: -.1em 0 0 0;
+    background: #FF00B5;
+    -webkit-transform-origin: 250% 50%;
+    -moz-transform-origin: 250% 50%;
+    -ms-transform-origin: 250% 50%;
+    -o-transform-origin: 250% 50%;
+    transform-origin: 250% 50%;
+    -webkit-animation: 
+        rota 1.72s linear infinite,
+        opa 5.25s ease-in-out infinite alternate;
+    -moz-animation: 
+        rota 1.72s linear infinite,
+        opa 5.25s ease-in-out infinite alternate;
+    -ms-animation: 
+        rota 1.72s linear infinite,
+        opa 5.25s ease-in-out infinite alternate;
+    -o-animation: 
+        rota 1.72s linear infinite,
+        opa 5.25s ease-in-out infinite alternate;
+    animation: 
+        rota 1.72s linear infinite,
+        opa 5.25s ease-in-out infinite alternate;
+}
+
+@-webkit-keyframes rota {
+    to { -webkit-transform: rotate(360deg); }
+}
+
+@-moz-keyframes rota {
+    to { -moz-transform: rotate(360deg); }
+}
+
+@-ms-keyframes rota {
+    to { -ms-transform: rotate(360deg); }
+}
+
+@-o-keyframes rota {
+    to { -o-transform: rotate(360deg); }
+}
+
+@keyframes rota {
+    to { transform: rotate(360deg); }
+}
+
+@-webkit-keyframes opa {
+    12.0% { opacity: 0.80; }
+    19.5% { opacity: 0.88; }
+    37.2% { opacity: 0.64; }
+    40.5% { opacity: 0.52; }
+    52.7% { opacity: 0.69; }
+    60.2% { opacity: 0.60; }
+    66.6% { opacity: 0.52; }
+    70.0% { opacity: 0.63; }
+    79.9% { opacity: 0.60; }
+    84.2% { opacity: 0.75; }
+    91.0% { opacity: 0.87; }
+}
+
+@-moz-keyframes opa {
+    12.0% { opacity: 0.80; }
+    19.5% { opacity: 0.88; }
+    37.2% { opacity: 0.64; }
+    40.5% { opacity: 0.52; }
+    52.7% { opacity: 0.69; }
+    60.2% { opacity: 0.60; }
+    66.6% { opacity: 0.52; }
+    70.0% { opacity: 0.63; }
+    79.9% { opacity: 0.60; }
+    84.2% { opacity: 0.75; }
+    91.0% { opacity: 0.87; }
+}
+
+@-ms-keyframes opa {
+    12.0% { opacity: 0.80; }
+    19.5% { opacity: 0.88; }
+    37.2% { opacity: 0.64; }
+    40.5% { opacity: 0.52; }
+    52.7% { opacity: 0.69; }
+    60.2% { opacity: 0.60; }
+    66.6% { opacity: 0.52; }
+    70.0% { opacity: 0.63; }
+    79.9% { opacity: 0.60; }
+    84.2% { opacity: 0.75; }
+    91.0% { opacity: 0.87; }
+}
+
+@-o-keyframes opa {
+    12.0% { opacity: 0.80; }
+    19.5% { opacity: 0.88; }
+    37.2% { opacity: 0.64; }
+    40.5% { opacity: 0.52; }
+    52.7% { opacity: 0.69; }
+    60.2% { opacity: 0.60; }
+    66.6% { opacity: 0.52; }
+    70.0% { opacity: 0.63; }
+    79.9% { opacity: 0.60; }
+    84.2% { opacity: 0.75; }
+    91.0% { opacity: 0.87; }
+}
+
+@keyframes opa {
+    12.0% { opacity: 0.80; }
+    19.5% { opacity: 0.88; }
+    37.2% { opacity: 0.64; }
+    40.5% { opacity: 0.52; }
+    52.7% { opacity: 0.69; }
+    60.2% { opacity: 0.60; }
+    66.6% { opacity: 0.52; }
+    70.0% { opacity: 0.63; }
+    79.9% { opacity: 0.60; }
+    84.2% { opacity: 0.75; }
+    91.0% { opacity: 0.87; }
+}
+
+#message {
+  text-align: center;
+  color: rgba(255,255,255,.9);
+  font-size: 20px;
+}
