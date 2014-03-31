@@ -1,13 +1,14 @@
 from utils.dbs import GIntersection
 import utils.dbs as dbs
 from math import sqrt, pow
-from utils.finding_fns import find_dist, vert_climb, find_miles, vincenty, radials, gen_radii
+from utils.finding_fns import find_dist, vert_climb, find_miles, vincenty, radials, gen_radii, nearest_intersection
 from utils.pathfinding import a_star
 
 class Route(object):
     # def __init__(self, start, distance):
     def __init__(self, start, end):
         self.start = start
+        # self.first = nearest_intersection(start) ## figure out Start    
         # self.distance = distance
         self.end = end
         self.path = a_star(start, end)

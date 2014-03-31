@@ -11,13 +11,14 @@ def start():
 
 @app.route("/", methods=["POST"])
 def find():
-    start_loc = request.form.get("start")
-    end_loc = request.form.get("end")
+    data = request.form
+    distance = float(data.get('distance'))
+    start_loc = (float(data.get('lat')), float(data.get('lon')))
+    print start_loc
+    print distance
 
     start = models.h
     end = models.vl
-    print start
-    print end
 
     rt  = models.Route(models.h, models.vl)
     print rt

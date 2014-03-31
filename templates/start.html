@@ -1,5 +1,89 @@
-<form method="POST" action="/">
-    <input type="text" placeholder="Start" name="start">
-    <input type="text" placeholder="End" name="end">
-    <input type="submit" value="Find Route">
-</form>
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>test</title>
+        <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+        <meta charset="utf-8">
+        <link rel="stylesheet" type="text/css" href="../static/css/style.css">
+        <link href="http://fonts.googleapis.com/css?family=Oxygen:300,400,700" rel="stylesheet" type="text/css">
+    </head>
+    <body>
+        <div id="map-canvas"></div>
+        <div id="overlay"></div>
+        <div class="centered" id="formwrapper">
+            <div id="form">
+                <div id="title">
+                    <h1>run sf</h1>
+                    <h2>run smarter, not harder</h2>
+                    <div id="logo"><img src="../static/logo.png"></div>
+                </div>
+                <label>start:</label><input type="text" class="formfield" placeholder="starting address" name="start" id="address">
+                <div class="subtext">san francisco, ca</div>
+                <label>distance:</label><input type="text" class="formfield" placeholder="" name="end" id="distance"><span class="small">miles</span>
+                <input type="text" name="lat" id="lat">
+                <input type="text" name="lon" id="lon">        
+                <button id="go">find route ></button>
+            </div>
+        </div>
+        <div class="centered" id="loader">
+            <ul class="spinner">
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+            </ul>
+            <div id="message">
+                <p id="msg">please wait while we find you a route...</p>
+<!--                 <p id="msg2">go tie your shoes and stretch or something!</p>
+                <p id="msg3">eat a few almonds while you wait.</p> -->
+            </div>
+        </div>
+        <script src="https://code.jquery.com/jquery.js"></script>
+        <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
+        <script src="../static/js/maps_render.js"></script>
+<!--        <script src="../static/js/geocode.js"></script>     -->
+        <script>
+            var messages=[
+                "go tie your shoes and stretch or something!",
+                "how's the weather out today?",
+                "hang tight, still working on it...",
+                "reticulating splines...",
+                "betcha i can make this route faster than you can run it."]
+            function replaceMessage(msgs) {
+                var i = Math.floor(Math.random() * msgs.length);
+                $('#msg').html(msgs[i]);
+            }
+            var geocoder = new google.maps.Geocoder();
+            var lat;
+            var lon;
+            function codeAddress() {
+                var address = document.getElementById("address").value;
+                geocoder.geocode( { 'address': address}, function(results, status) {
+                if (status == google.maps.GeocoderStatus.OK) {
+                    lat = results[0].geometry.location.k;
+                    lon = results[0].geometry.location.A;
+                    var distance = document.getElementById("distance").value;
+                    $.post( "/", {lat: lat, lon: lon, distance: distance});
+                    console.log(coords);
+                    console.log(distance);
+                } else {
+                    alert("Geocode was not successful for the following reason: " + status);
+                }
+                });
+            }
+
+            $('#go').click(function() {
+                codeAddress();
+                // console.log(coords);
+                // var distance = document.getElementById("distance").value;
+                // console.log(distance);
+                // $.post( "/", {coords: coords, distance: distance});
+                $('#formwrapper').fadeOut(40);            
+                $('#loader').fadeIn(40);
+                window.setInterval(function(){
+                    replaceMessage(messages);
+                },8000);
+            });
+        </script>
+    </body>
+</html>

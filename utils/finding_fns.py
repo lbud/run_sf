@@ -18,6 +18,13 @@ def find_miles(x1, x2):
     dist = distance.distance(pt1, pt2).miles
     return dist
 
+def nearest_intersection(loc):
+    """ Takes loc as tuple; returns closest intersection object """
+    here_string = 'POINT(%r %r)' % (loc[1],loc[0])
+    here = dbs.WKTElement(here_string, srid=4326)
+    nearest = dbs.session.query(dbs.GIntersection).order_by(dbs.func.ST_Distance(dbs.GIntersection.loc, here)).first()
+    return nearest
+
 
 # def find_dist(x1, x2):
 #     """ Finds distance, in feet, between two node or intersection objects """
