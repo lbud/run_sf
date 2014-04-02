@@ -19,7 +19,9 @@ def find():
 
     rt  = models.Route(start_loc, models.mp)
     route = rt.render
+    print rt.gain
     print route
+
 
     return route
 

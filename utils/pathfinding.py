@@ -9,7 +9,7 @@ def a_star(start, end):
     path = []
     route_info = {}
     distance = 0
-    edge_route = []
+    gain = 0
 
     while open_set:
         current = min(open_set, key=lambda f:f.g + f.h_value(end))
@@ -20,9 +20,11 @@ def a_star(start, end):
             while current.parent:
                 path.append(current)
                 distance += dist(current, current.parent)
+                gain += abs(current.elev - current.parent.elev)
                 current = current.parent
             route_info['path'] = path[::-1]
             route_info['distance'] = distance
+            route_info['gain'] = gain
             return route_info
 
         for neighbor in current.ends:
