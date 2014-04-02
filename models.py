@@ -6,11 +6,13 @@ from utils.pathfinding import a_star
 import json
 
 class Route(object):
-    def __init__(self, start, route_distance):
+    def __init__(self, start, route_distance, end=None, route_type="loop"):
         self.start = start
-        self.first = Node(nearest_intersection(self.start).id) ## figure out Start    
-        self.route_distance = route_distance
-        self.path = a_star(self.first, route_distance)
+        self.route_type = route_type
+        self.end = end
+        self.first = Node(nearest_intersection(self.start).id)
+        self.route_distance = float(route_distance)
+        self.path = a_star(self.first, route_distance, route_type)
         self.distance = self.path.get('distance')
         self.gain = self.path.get('gain')
         self.clean = self.clean_path
@@ -37,7 +39,9 @@ class Route(object):
 
     @property
     def render(self):
-        coords = json.dumps({"coords":[[n.lat, n.lon] for n in self.clean]})
+        start = [[self.start[0], self.start[1]]]
+        coord_list = start + [[n.lat, n.lon] for n in self.clean[1:-1]] + start
+        coords = json.dumps({"coords":[c for c in coord_list]})
         return coords
 
 class Node(object):
@@ -88,6 +92,9 @@ class Node(object):
         if inverse_distance != 0:
             inverse_distance = 1 / inverse_distance
         return inverse_distance * inverse_distance
+
+    def abs_climb(self, start):
+        return pow(abs(vert_climb(start, self)),2)
 
     def is_in(self, other_set):
         if True in {self.id == o.id for o in other_set}:
