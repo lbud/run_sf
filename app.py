@@ -17,14 +17,11 @@ def find():
     print start_loc
     print distance
 
-    start = models.h
-    end = models.vl
-
-    rt  = models.Route(models.h, models.vl)
-    print rt
+    rt  = models.Route(start_loc, models.mp)
     route = rt.render
+    print route
 
-    return render_template("route.html", route=route)
+    return route
 
 if __name__ == "__main__":
     app.run(debug=True)

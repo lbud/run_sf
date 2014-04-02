@@ -3,16 +3,18 @@ import utils.dbs as dbs
 from math import sqrt, pow
 from utils.finding_fns import find_dist, vert_climb, find_miles, vincenty, radials, gen_radii, nearest_intersection
 from utils.pathfinding import a_star
+import json
 
 class Route(object):
-    # def __init__(self, start, distance):
     def __init__(self, start, end):
         self.start = start
-        # self.first = nearest_intersection(start) ## figure out Start    
-        # self.distance = distance
+        self.first = Node(nearest_intersection(self.start).id)
+        # self.route_distance = float(route_distance)
         self.end = end
-        self.path = a_star(start, end)
-        self.clean = None
+        self.path = a_star(self.first, end)
+        self.gain = self.path.get('gain')
+        self.distance = self.path.get('distance')
+        self.clean = self.clean_path
 
     @property
     def possible_ends(self):
@@ -24,26 +26,21 @@ class Route(object):
 
     @property
     def clean_path(self):
-        if not self.clean:
-            full_path = self.path.get('path')
-            clean_path = [full_path[0]]
-            for i in range(1, len(full_path)-1):
-                if full_path[i].from_way == full_path[i-1].from_way and full_path[i].from_way == full_path[i+1].from_way:
-                    continue
-                else:
-                    clean_path.append(full_path[i])
-            clean_path.append(full_path[-1])
-            self.clean = clean_path
-            return self.clean
-        return self.clean
+        full_path = self.path.get('path')
+        clean_path = [full_path[0]]
+        for i in range(1, len(full_path)-1):
+            if full_path[i].from_way == full_path[i-1].from_way and full_path[i].from_way == full_path[i+1].from_way:
+                continue
+            else:
+                clean_path.append(full_path[i])
+        clean_path.append(full_path[-1])
+        return clean_path
 
     @property
     def render(self):
-        coords = ""
-        for n in self.clean_path:
-            # n_loc = dbs.coords_tuple(n)
-            n_string = "[%r,%r]," % (n.lat, n.lon)#n_loc[0],n_loc[1])
-            coords += n_string
+        start = [[self.start[0], self.start[1]]]
+        coord_list = start + [[n.lat, n.lon] for n in self.clean[1:]]
+        coords = json.dumps({"coords":[c for c in coord_list]})
         return coords
 
 
