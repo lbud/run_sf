@@ -3,16 +3,17 @@ import utils.dbs as dbs
 from math import sqrt, pow
 from utils.finding_fns import find_dist, vert_climb, find_miles, vincenty, radials, gen_radii, nearest_intersection
 from utils.pathfinding import a_star
+import json
 
 class Route(object):
-    # def __init__(self, start, distance):
-    def __init__(self, start, end):
+    def __init__(self, start, route_distance):
         self.start = start
-        # self.first = nearest_intersection(start) ## figure out Start    
-        # self.distance = distance
-        self.end = end
-        self.path = a_star(start, end)
-        self.clean = None
+        self.first = Node(nearest_intersection(self.start).id) ## figure out Start    
+        self.route_distance = route_distance
+        self.path = a_star(self.first, route_distance)
+        self.distance = self.path.get('distance')
+        self.gain = self.path.get('gain')
+        self.clean = self.clean_path
 
     @property
     def possible_ends(self):
@@ -24,42 +25,34 @@ class Route(object):
 
     @property
     def clean_path(self):
-        if not self.clean:
-            full_path = self.path.get('path')
-            clean_path = [full_path[0]]
-            for i in range(1, len(full_path)-1):
-                if full_path[i].from_way == full_path[i-1].from_way and full_path[i].from_way == full_path[i+1].from_way:
-                    continue
-                else:
-                    clean_path.append(full_path[i])
-            clean_path.append(full_path[-1])
-            self.clean = clean_path
-            return self.clean
-        return self.clean
+        full_path = self.path.get('path')
+        clean_path = [full_path[0]]
+        for i in range(1, len(full_path)-1):
+            if full_path[i].from_way == full_path[i-1].from_way and full_path[i].from_way == full_path[i+1].from_way:
+                continue
+            else:
+                clean_path.append(full_path[i])
+        clean_path.append(full_path[-1])
+        return clean_path
 
     @property
     def render(self):
-        coords = ""
-        for n in self.clean_path:
-            # n_loc = dbs.coords_tuple(n)
-            n_string = "[%r,%r]," % (n.lat, n.lon)#n_loc[0],n_loc[1])
-            coords += n_string
+        coords = json.dumps({"coords":[[n.lat, n.lon] for n in self.clean]})
         return coords
-
-
 
 class Node(object):
     def __init__(self, id):
         self.id = id
         this = dbs.session.query(dbs.GIntersection).get(id)
         self.loc = this.loc
-        loc_tup = dbs.coords_tuple(self)
+        # loc_tup = dbs.coords_tuple(self)        # TODO do i use this? why do I have?
         self.lat = this.lat
         self.lon = this.lon
         self.elev = this.elev
         self.edges = this.edges
         self.parent = None
         self.from_way = None
+        self.distance = 0.0
         self.g = 0
 
     @property
@@ -89,6 +82,12 @@ class Node(object):
         # climb = vert_climb(self, end)
         geodesic = find_dist(self,end)
         return geodesic
+
+    def i_value(self, start):
+        inverse_distance = find_dist(self, start)
+        if inverse_distance != 0:
+            inverse_distance = 1 / inverse_distance
+        return inverse_distance * inverse_distance
 
     def is_in(self, other_set):
         if True in {self.id == o.id for o in other_set}:

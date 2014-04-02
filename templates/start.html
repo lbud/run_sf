@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>test</title>
+        <title>runSF</title>
         <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
         <meta charset="utf-8">
         <link rel="stylesheet" type="text/css" href="../static/css/style.css">
@@ -15,8 +15,8 @@
                 <div id="title">
                     <h1>run sf</h1>
                     <h2>run smarter, not harder</h2>
-                    <div id="logo"><img src="../static/logo.png"></div>
                 </div>
+                <div id="logo"><img src="../static/logo.png"></div>
                 <label>start:</label><input type="text" class="formfield" placeholder="starting address" name="start" id="address">
                 <div class="subtext">san francisco, ca</div>
                 <label>distance:</label><input type="text" class="formfield" placeholder="" name="end" id="distance"><span class="small">miles</span>
@@ -38,6 +38,7 @@
                 <p id="msg3">eat a few almonds while you wait.</p> -->
             </div>
         </div>
+        <div id="reset">&larr;</div>
         <script src="https://code.jquery.com/jquery.js"></script>
         <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
         <script src="../static/js/maps_render.js"></script>
@@ -56,33 +57,50 @@
             var geocoder = new google.maps.Geocoder();
             var lat;
             var lon;
-            function codeAddress() {
+            function drawRoute() {
+                // geocode address
                 var address = document.getElementById("address").value;
-                geocoder.geocode( { 'address': address}, function(results, status) {
+                var southWest = new google.maps.LatLng(37.705295, -122.512788);
+                var northEast = new google.maps.LatLng(37.811928, -122.360649);
+                var bounds = new google.maps.LatLngBounds(southWest, northEast);
+                geocoder.geocode( { "address": address, "bounds": bounds }, function(results, status) {
                 if (status == google.maps.GeocoderStatus.OK) {
                     lat = results[0].geometry.location.k;
                     lon = results[0].geometry.location.A;
                     var distance = document.getElementById("distance").value;
-                    $.post( "/", {lat: lat, lon: lon, distance: distance});
-                    console.log(coords);
-                    console.log(distance);
+                    // post start + distance to flask app
+                    $.post( "/", {lat: lat, lon: lon, distance: distance}).done(function(data){
+                        route = JSON.parse(data);
+                        $('#loader').fadeOut();
+                        $('#overlay').fadeOut();
+                        $('#reset').fadeIn();
+                        render(route.coords);
+                    });
+
                 } else {
                     alert("Geocode was not successful for the following reason: " + status);
                 }
                 });
             }
+            function resetForm() {
+                $('#overlay').fadeIn();
+                $('#title').css('visibility','hidden');
+                directionsDisplay.setMap(null);
+                document.getElementById('address').value='';
+                document.getElementById('distance').value='';
+                $('#formwrapper').fadeIn();
+            }
 
             $('#go').click(function() {
-                codeAddress();
-                // console.log(coords);
-                // var distance = document.getElementById("distance").value;
-                // console.log(distance);
-                // $.post( "/", {coords: coords, distance: distance});
+                drawRoute();
                 $('#formwrapper').fadeOut(40);            
                 $('#loader').fadeIn(40);
                 window.setInterval(function(){
                     replaceMessage(messages);
                 },8000);
+            });
+            $('#reset').click(function() {
+                resetForm();
             });
         </script>
     </body>
