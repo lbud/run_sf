@@ -58,6 +58,11 @@ class Node(object):
         self.from_way = None
         self.distance = 0.0
         self.g = 0
+# adding these now...
+        # self.h = 0
+        # self.i = 0
+        self.abs_gain = 0
+        self.rel_gain = 0
 
     @property
     def ends(self):
@@ -79,8 +84,6 @@ class Node(object):
         geodesic = find_dist(last, self)
         climb = vert_climb(last,self)
         return geodesic + pow(abs(climb),3)
-        # TODO: tweak this so it's not such arbitrary guessing
-        # return geodesic       # keeping this here to uncomment when comparing test routes
 
     def h_value(self, end):
         # climb = vert_climb(self, end)
@@ -94,7 +97,14 @@ class Node(object):
         return inverse_distance * inverse_distance
 
     def abs_climb(self, start):
-        return pow(abs(vert_climb(start, self)),2)
+        if self.parent is not None:
+            return pow(abs(vert_climb(start, self)), 2)
+        return 0
+
+    def rel_climb(self, start):
+        if self.parent is not None:
+            return pow(abs(vert_climb(self, self.parent)), 2)
+        return 0
 
     def is_in(self, other_set):
         if True in {self.id == o.id for o in other_set}:

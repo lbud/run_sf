@@ -1,45 +1,49 @@
 from finding_fns import find_miles as dist
 
-# path types
-path_away = lambda f: f.g + f.abs_climb(start) + (inv dist)
+# path functions
+path_away = lambda f: f.rel_climb(f.parent) + f.abs_climb(start) + (inv dist)
 path_to_corner = lambda f: (rel climb) + (abs climb) + (???)
 path_corner_home = lambda f: (rel climb) + (abs climb) + (???)
 path_home = lambda f: f.g + f.abs_climb(start) + f.h_value(start)
 
-def pathfind(path_cost):
-    current = min(open_set, key=path_cost)    
+def pathfind(path_function):
+    global closed_set
+    global open_set
+    current = min(open_set, key=path_function)
     closed_set.add(current)
     open_set.remove(current)
 
     for neighbor in current.ends:
-        cost = current.g + neighbor.move_cost(current)
-        neighbor.distance = current.distance + dist(neighbor, current)
+        cost = current.g + neighbor.move_cost(current)  #this has to be modified all around
 
         if neighbor.is_in(closed_set):
             continue
 
         if neighbor.is_in(open_set):
-            if cost < neighbor.g:
+            if cost < neighbor.g:    #this has to be modified depending on leg
                 open_set.remove(neighbor)
         if not neighbor.is_in(open_set) and not neighbor.is_in(closed_set):
-            neighbor.g = cost
-            open_set.add(neighbor)
+            neighbor.distance = current.distance + dist(neighbor, current)
+            # neighbor.g = cost
             neighbor.parent = current
             neighbor.from_way = neighbor.find_from_way(neighbor.parent)
+            neighbor.rel_climb = neighbor.elev - current.elev
+            neighbor.abs_climb = current.abs_climb + rel_climb
+            open_set.add(neighbor)
 
 
-def pathfind(current, priority, end=None):
-    if priority == "away":
-    elif priority == "loop_leg_2":
-        pass
-    elif priority == "loop_leg_3":
-        pass
-    elif priority == "home":
-        pass
-    # make a bunch of path things global
-    # wayfind, modifying heuristics
+# def pathfind(current, priority, end=None):
+#     if priority == "away":
+#     elif priority == "loop_leg_2":
+#         pass
+#     elif priority == "loop_leg_3":
+#         pass
+#     elif priority == "home":
+#         pass
+#     # make a bunch of path things global
+#     # wayfind, modifying heuristics
 
-    pass
+#     pass
 
 
 """
@@ -107,7 +111,7 @@ def a_star(start, route_distance, route_type):
     path = []
     route_info = {}
     distance = 0
-    gain = 0
+    cumulative_gain = 0
     edge_route = []
     half_dist = route_distance / 2
     if route_type == "loop":
@@ -160,12 +164,12 @@ def a_star(start, route_distance, route_type):
         if current.id == start.id:
             while current.parent:
                 path.append(current)
-                gain += abs(current.elev - current.parent.elev)
+                cumulative_gain += abs(current.elev - current.parent.elev)
                 current = current.parent
             path.append(current)
             route_info['path'] = path[::-1]
             route_info['distance'] = path[0].distance
-            route_info['gain'] = gain
+            route_info['gain'] = cumulative_gain
             return route_info
         for neighbor in current.ends:
             cost = current.g + neighbor.move_cost(current)
