@@ -5,17 +5,23 @@ from utils.finding_fns import find_dist, vert_climb, find_miles, vincenty, radia
 from utils.pathfinding import a_star
 import json
 
+from utils.pathfinding_four import find_route
+
+
 class Route(object):
-    def __init__(self, start, route_distance, end=None, route_type="loop"):
+    def __init__(self, start, route_distance, end=None): #, route_type="loop"
         self.start = start
-        self.route_type = route_type
+        # self.route_type = route_type
         self.end = end
         self.first = Node(nearest_intersection(self.start).id)
         self.route_distance = float(route_distance)
-        self.path = a_star(self.first, route_distance, route_type)
+        # self.path = a_star(self.first, route_distance, route_type)
+        self.path = find_route(self.first, route_distance)
+
         self.distance = self.path.get('distance')
         self.gain = self.path.get('gain')
         self.clean = self.clean_path
+
 
     @property
     def possible_ends(self):
@@ -56,13 +62,16 @@ class Node(object):
         self.edges = this.edges
         self.parent = None
         self.from_way = None
+        self.rel_distance = 0.0
         self.distance = 0.0
         self.g = 0
 # adding these now...
         # self.h = 0
         # self.i = 0
-        self.abs_gain = 0
-        self.rel_gain = 0
+        self.abs_climb = 0.0
+        self.rel_climb = 0.0
+        self.elev_diff = 0.0
+        self.grade = 0.0
 
     @property
     def ends(self):
@@ -86,7 +95,6 @@ class Node(object):
         return geodesic + pow(abs(climb),3)
 
     def h_value(self, end):
-        # climb = vert_climb(self, end)
         geodesic = find_dist(self,end)
         return geodesic
 
@@ -94,17 +102,15 @@ class Node(object):
         inverse_distance = find_dist(self, start)
         if inverse_distance != 0:
             inverse_distance = 1 / inverse_distance
-        return inverse_distance * inverse_distance
+        return inverse_distance
 
-    def abs_climb(self, start):
-        if self.parent is not None:
-            return pow(abs(vert_climb(start, self)), 2)
-        return 0
+    # def abs_climb(self, start):
+    #     if self.parent is not None:
+    #         return pow(abs(vert_climb(start, self)), 2)
+    #     return 0
 
-    def rel_climb(self, start):
-        if self.parent is not None:
-            return pow(abs(vert_climb(self, self.parent)), 2)
-        return 0
+    # def rel_climb(self, parent):
+    #     return pow(abs(vert_climb(self, self.parent)), 2)
 
     def is_in(self, other_set):
         if True in {self.id == o.id for o in other_set}:
