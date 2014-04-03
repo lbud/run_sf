@@ -2,10 +2,8 @@ from utils.dbs import GIntersection
 import utils.dbs as dbs
 from math import sqrt, pow
 from utils.finding_fns import find_dist, vert_climb, find_miles, vincenty, radials, gen_radii, nearest_intersection
-from utils.pathfinding import a_star
+from utils.pathfinding import find_route
 import json
-
-from utils.pathfinding_four import find_route
 
 
 class Route(object):
@@ -15,7 +13,6 @@ class Route(object):
         self.end = end
         self.first = Node(nearest_intersection(self.start).id)
         self.route_distance = float(route_distance)
-        # self.path = a_star(self.first, route_distance, route_type)
         self.path = find_route(self.first, route_distance)
 
         self.distance = self.path.get('distance')
