@@ -85,7 +85,6 @@
             function resetForm() {
                 $('#overlay').fadeIn();
                 $('#title').css('visibility','hidden');
-                directionsDisplay.setMap(null);
                 document.getElementById('address').value='';
                 document.getElementById('distance').value='';
                 $('#formwrapper').fadeIn();
@@ -101,6 +100,22 @@
             });
             $('#reset').click(function() {
                 resetForm();
+                // $(document).keyup(function(e) {
+                //     if (e.keyCode == 27) {
+                //         $('#overlay').fadeOut();
+                //         $('#formwrapper').fadeOut();
+                //     }
+                // });
+                $(document).on('keyup.escape', function(e) {
+                    if (e.keyCode == 27) {
+                        $('#overlay').fadeOut();
+                        $('#formwrapper').fadeOut();
+                    }
+                })
+                $('#go').click(function() {
+                    directionsDisplay.setMap(null);
+                    $(document).unbind('keyup.escape');
+                })
             });
         </script>
     </body>
