@@ -61,17 +61,17 @@ class Node(object):
         self.elev = this.elev
         self.edges = this.edges
         self.parent = None
-        self.from_way = None
-        self.rel_distance = 0.0
-        self.distance = 0.0
-        self.g = 0
+        # self.from_way = None
+        # self.rel_distance = 0.0
+        # self.distance = 0.0
+        # self.g = 0
 # adding these now...
         # self.h = 0
         # self.i = 0
-        self.abs_climb = 0.0
-        self.rel_climb = 0.0
+        # self.abs_climb = 0.0
+        # self.rel_climb = 0.0
         self.elev_diff = 0.0
-        self.grade = 0.0
+        # self.grade = 0.0
 
     @property
     def ends(self):
@@ -82,21 +82,49 @@ class Node(object):
                     ends.append(Node(end.id))
         return ends
 
-    def find_from_way(self, parent):
-        shared_edge = filter(lambda x: x in self.edges, parent.edges)
-        if shared_edge:
-            return shared_edge[0].way_id
+    @property
+    def rel_climb(self):
+        if self.parent:
+            return self.elev - self.parent.elev
+        return 0.0
 
-    def move_cost(self, last): # for computing g-scores
-        if not last:
-            return 0
-        geodesic = find_dist(last, self)
-        climb = vert_climb(last,self)
-        return geodesic + pow(abs(climb),3)
+    @property
+    def abs_climb(self):
+        if self.parent:
+            return abs(self.rel_climb) + self.parent.abs_climb
+        return 0.0
+
+    @property
+    def distance(self):
+        """ returns distance in miles """
+        if self.parent:
+            return find_miles(self, self.parent) + self.parent.distance
+        return 0.0
+
+    @property
+    def grade(self):
+        if self.parent:
+            return 100 * self.rel_climb / find_dist(self, self.parent)
+        return 0.0
+
+    @property
+    def from_way(self):
+        if self.parent:
+            shared_edge = filter(lambda x: x in self.edges, self.parent.edges)
+            if shared_edge:
+                return shared_edge[0].way_id
+        return None
+
+    # def move_cost(self, last): # for computing g-scores
+    #     if not last:
+    #         return 0
+    #     geodesic = find_dist(last, self)
+    #     climb = vert_climb(last,self)
+    #     return geodesic + pow(abs(climb),3)
 
     def h_value(self, end):
-        geodesic = find_dist(self,end)
-        return geodesic
+        miles_to_end = find_miles(self,end)
+        return miles_to_end
 
     def i_value(self, start):
         inverse_distance = find_dist(self, start)
@@ -104,22 +132,12 @@ class Node(object):
             inverse_distance = 1 / inverse_distance
         return inverse_distance
 
-    # def abs_climb(self, start):
-    #     if self.parent is not None:
-    #         return pow(abs(vert_climb(start, self)), 2)
-    #     return 0
-
-    # def rel_climb(self, parent):
-    #     return pow(abs(vert_climb(self, self.parent)), 2)
-
     def is_in(self, other_set):
         if True in {self.id == o.id for o in other_set}:
             return True
         return False
 
-    def render(self):
-        #return json(self.lon, self.lat)
-        pass
+
 
 h = Node(65314183)   # gough & post                                         elev=63
 n = Node(65303561)   # gough & sutter                                       elev=70
