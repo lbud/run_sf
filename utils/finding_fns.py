@@ -60,24 +60,24 @@ def radials(x1, dist, offset = 0):
     radii = [ vincenty(x1, bearing, dist) for bearing in bearings ]  # gets coordinates
     nearest_ints = []
     for r in radii:
-        res = dbs.mdb.command(SON([('geoNear', 'nodes'), ('near', r), ('limit', 1)]))['results'][0].get('obj')
-        resloc = res.get('loc')
-        res_id = res.get('node_id')
-        nearest_ints.append(res_id)
-    radial_points = [ dbs.session.query(dbs.Intersection).get(i) for i in nearest_ints ]
+        # res = dbs.mdb.command(SON([('geoNear', 'nodes'), ('near', r), ('limit', 1)]))['results'][0].get('obj')
+        # resloc = res.get('loc')
+        # res_id = res.get('node_id')
+        result = nearest_intersection(r)
+        nearest_ints.append(result.id)
+    radial_points = [ dbs.session.query(dbs.GIntersection).get(i) for i in nearest_ints ]
     return radial_points
 
 
 def gen_radii(loc, dist):
     valids = []
-    for i in [ float(r)/2 for r in range(dist * 2) ]:
+    for i in [ float(r)/2 for r in range(1, dist * 2) ]:
         if i%1 == 0:        
             rads = radials(loc,i)
         else:
             rads = radials(loc,i,22.5)
         valids += rads
     return valids
-
 
 
 def vincenty(x1, bearing, dist):

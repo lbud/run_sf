@@ -107,5 +107,3 @@ ll = Node(65336684)     # lombard & lyon -- 1.5m                            elev
 ap = Node(65315754)     # pacific & arguello -- 1.87m                       elev=91
 fg = Node(65336114)     # greenwich & fillmore -- 1.06m                     elev=18
 gs = Node(258759451)    # geary & scott --                                  elev=45 
-
-

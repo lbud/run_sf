@@ -22,7 +22,6 @@ def find():
     print rt.gain
     print route
 
-
     return route
 
 if __name__ == "__main__":
