@@ -2,19 +2,23 @@ from utils.dbs import GIntersection
 import utils.dbs as dbs
 from math import sqrt, pow
 from utils.finding_fns import find_dist, vert_climb, find_miles, vincenty, radials, gen_radii, nearest_intersection
-from utils.pathfinding import a_star
+from utils.pathfinding import find_route
 import json
 
+
 class Route(object):
-    def __init__(self, start, end):
+    def __init__(self, start, route_distance, end=None): #, route_type="loop"
         self.start = start
-        self.first = Node(nearest_intersection(self.start).id)
-        # self.route_distance = float(route_distance)
+        # self.route_type = route_type
         self.end = end
-        self.path = a_star(self.first, end)
-        self.gain = self.path.get('gain')
+        self.first = Node(nearest_intersection(self.start).id)
+        self.route_distance = float(route_distance)
+        self.path = find_route(self.first, route_distance)
+
         self.distance = self.path.get('distance')
+        self.gain = self.path.get('gain')
         self.clean = self.clean_path
+
 
     @property
     def possible_ends(self):
@@ -39,25 +43,24 @@ class Route(object):
     @property
     def render(self):
         start = [[self.start[0], self.start[1]]]
-        coord_list = start + [[n.lat, n.lon] for n in self.clean[1:]]
+        # FOR DEBUGGING: return all
+        # coord_list = start + [[n.lat, n.lon] for n in self.path.get('path')[1:-1]] + start
+        coord_list = start + [[n.lat, n.lon] for n in self.clean[1:-1]] + start
         coords = json.dumps({"coords":[c for c in coord_list]})
         return coords
-
-
 
 class Node(object):
     def __init__(self, id):
         self.id = id
         this = dbs.session.query(dbs.GIntersection).get(id)
         self.loc = this.loc
-        loc_tup = dbs.coords_tuple(self)
         self.lat = this.lat
         self.lon = this.lon
         self.elev = this.elev
         self.edges = this.edges
         self.parent = None
-        self.from_way = None
-        self.g = 0
+        self.elev_diff = 0.0
+        self.score = 0
 
     @property
     def ends(self):
@@ -68,33 +71,62 @@ class Node(object):
                     ends.append(Node(end.id))
         return ends
 
-    def find_from_way(self, parent):
-        shared_edge = filter(lambda x: x in self.edges, parent.edges)
-        if shared_edge:
-            return shared_edge[0].way_id
+    @property
+    def rel_climb(self):
+        if self.parent:
+            return self.elev - self.parent.elev
+        return 0.0
 
-    def move_cost(self, last): # for computing g-scores
-        if not last:
-            return 0
-        geodesic = find_dist(last, self)
-        climb = vert_climb(last,self)
-        return geodesic + pow(abs(climb),3)
-        # TODO: tweak this so it's not such arbitrary guessing
-        # return geodesic       # keeping this here to uncomment when comparing test routes
+    @property
+    def abs_climb(self):
+        if self.parent:
+            return abs(self.rel_climb) + self.parent.abs_climb
+        return 0.0
+
+    @property
+    def distance(self):
+        """ returns distance in miles """
+        if self.parent:
+            return find_miles(self, self.parent) + self.parent.distance
+        return 0.0
+
+    @property
+    def grade(self):
+        if self.parent:
+            return 100 * self.rel_climb / find_dist(self, self.parent)
+        return 0.0
+
+    @property
+    def from_way(self):
+        if self.parent:
+            shared_edge = filter(lambda x: x in self.edges, self.parent.edges)
+            if shared_edge:
+                return shared_edge[0].way_id
+        return None
+
+    # def move_cost(self, last): # for computing g-scores
+    #     if not last:
+    #         return 0
+    #     geodesic = find_dist(last, self)
+    #     climb = vert_climb(last,self)
+    #     return geodesic + pow(abs(climb),3)
 
     def h_value(self, end):
-        # climb = vert_climb(self, end)
-        geodesic = find_dist(self,end)
-        return geodesic
+        miles_to_end = find_miles(self,end)
+        return miles_to_end
+
+    def i_value(self, start):
+        inverse_distance = find_dist(self, start)
+        if inverse_distance != 0:
+            inverse_distance = 1 / inverse_distance
+        return inverse_distance
 
     def is_in(self, other_set):
         if True in {self.id == o.id for o in other_set}:
             return True
         return False
 
-    def render(self):
-        #return json(self.lon, self.lat)
-        pass
+
 
 h = Node(65314183)   # gough & post                                         elev=63
 n = Node(65303561)   # gough & sutter                                       elev=70

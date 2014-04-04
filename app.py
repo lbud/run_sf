@@ -17,11 +17,12 @@ def find():
     print start_loc
     print distance
 
-    rt  = models.Route(start_loc, models.mp)
-    route = rt.render
-    print rt.gain
-    print route
 
+    rt  = models.Route(start_loc, distance)
+    print rt.gain
+    print rt.distance
+    route = rt.render
+    print route
     return route
 
 if __name__ == "__main__":

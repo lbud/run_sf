@@ -129,6 +129,8 @@ function render(stops) {
                         }
                         directionsDisplay.setDirections(combinedResults);
                     }
+                } else {
+                    alert(status);
                 }
             });
         })(k);
