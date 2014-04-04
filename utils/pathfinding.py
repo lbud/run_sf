@@ -1,10 +1,6 @@
 from finding_fns import find_miles as dist
-from finding_fns import find_dist as dist_feet
+# from finding_fns import find_dist as dist_feet
 import dbs
-
-
-## take street names into account
-## make it super expensive to double back onto itself
 
 
 def find_route(start, route_distance):
@@ -39,8 +35,10 @@ def explore_score_fn(start, end, current, route_distance):
     ## exploring out: minimize elevation gain, incentivize going "away" by minimizing inverse dist
 
     climb_score = current.rel_climb*current.elev_diff
+
     # (pow(current.rel_climb, 2) + abs(pow(current.grade,3)) + 2*current.elev_diff)
     distance_score = 60000 * current.i_value(start) + 2*current.distance
+#TODO - refine
 
     # print "try", current.rel_climb*current.elev_diff
     # print "rel climb", current.rel_climb
@@ -57,11 +55,11 @@ def make_loop_score_fn(path_to_avoid):
         ## more traditional A* scoring coming back
         # score = (pow((current.rel_climb + current.abs_climb + current.grade + current.elev_diff),2) + current.distance + current.h_value(end))
         score = 10*abs(current.grade) + current.elev_diff + 20*current.distance + 20*current.h_value(end)
-        print "10*grade", 10*abs(current.grade)
-        print "overall gain squared", current.elev_diff
-        print "total dist", current.distance*20
-        print "h val", current.h_value(end)*20
-        print "score", score, "\n"
+        # print "10*grade", 10*abs(current.grade)
+        # print "overall gain squared", current.elev_diff
+        # print "total dist", current.distance*20
+        # print "h val", current.h_value(end)*20
+        # print "score", score, "\n"
         # print "rel climb", current.rel_climb
         # print "abs climb", current.abs_climb
         # print "grade", current.grade
@@ -75,7 +73,7 @@ def make_loop_score_fn(path_to_avoid):
         path_ids = [n.id for n in path_to_avoid]
         nearest = dbs.session.query(dbs.GIntersection).filter(dbs.GIntersection.id.in_(path_ids)).order_by(dbs.func.ST_Distance(dbs.GIntersection.loc, current.loc)).first()
         dist_to_path = dist(current, nearest)
-        print "dist to path", dist_to_path
+        # print "dist to path", dist_to_path
         if dist_to_path != 0:
             score_from_avoiding = 1/dist_to_path
             # print "score from avoiding", score_from_avoiding
@@ -87,8 +85,9 @@ def make_loop_score_fn(path_to_avoid):
         # print score + score_from_avoiding
         # print "\n"
         print score_from_avoiding*current.h_value(end)
-        print "scored from avoiding\n"
-        return score + current.h_value(end)*10*score_from_avoiding
+        # print "scored from avoiding\n"
+#TODO - refine
+        return score + (10 * current.h_value(end) * score_from_avoiding)
 
     return actual_loop_score_fn
 
