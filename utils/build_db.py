@@ -98,13 +98,18 @@ if data_types == "ways":
         if intersection[1] > 1:
             valid_ints.append(intersection[0])
             i_id = intersection[0]
-            print i_id
+            # print i_id
             i_ints = intersection[1]
             ## find intersection location from nodes table
+            print i_id
             i_lat, i_lon = dbs.find_intersection(i_id)
             i_elev = None
             dbs.store_intersection(i_id, i_ints, i_lat, i_lon, i_elev)
-    dbs.session.commit()
+
+    print "number of ints:", len(valid_ints)
+    commit_1 = raw_input("commit ints? y/n >")
+    if commit_1 == "y":
+        dbs.session.commit()
 
 
     ## to get all ways with nodes
@@ -120,17 +125,26 @@ if data_types == "ways":
     unfinished_edges = []
     for way in ways.items():
         this_edge = []
+        between_nodes = []
         way_id = way[0]
         intersections = way[1]
         for i in range(len(intersections)):
+            if len(this_edge) == 1:
+                between_nodes.append(intersectionrsections[i])
             if intersections[i] in valid_ints:
                 this_edge.append(intersections[i])
                 if len(this_edge) == 2:
                     end_a = this_edge[0]
-                    end_b = this_edge[1]
-                    dbs.store_edge(way_id, end_a, end_b)
+                    end_b = this_edge[-1]
+                    between_nodes = between_nodes[:-1]
+                    print way_id, end_a, end_b, between_nodes
+                    dbs.store_edge(way_id, end_a, end_b, between_nodes)
                     this_edge = this_edge[1:]
+                    between_nodes = []
             if i == len(intersections) - 1 and not (intersections[i] in valid_ints):
                 this_edge.append(intersections[i])
                 unfinished_edges.append(this_edge)
-    dbs.session.commit()
+    print "unfinished", unfinished_edges
+    commit_2 = raw_input("commit edges? y/n >")
+    if commit_2 == "y":
+        dbs.session.commit()

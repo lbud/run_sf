@@ -4,15 +4,8 @@ from sqlalchemy import Column, Integer, Float, BigInteger, String
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import sessionmaker, scoped_session, relationship, backref
 from geoalchemy2 import Geometry, WKTElement
-from config import DB_URI
-# from pymongo import MongoClient, GEO2D
-# from bson.objectid import ObjectId
-# from bson.son import SON
+# from config import DB_URI
 
-
-###
-### POSTGIS
-###
 
 
 ENGINE = create_engine("postgres://lbudorick@localhost/run", echo=False)
@@ -66,19 +59,25 @@ def coords_tuple(n):
     return tup
 
 def store_node(id, lat, lon, elev):
-    n = Node(id=id, lat=lat, lon=lon, elev=elev)
+    n = GNode(id=id, lat=lat, lon=lon, elev=elev)
     session.add(n)
     return None
 
 def store_intersection(id, ints, lat, lon, elev):
-    loc = 'POINT(%r,%r)' % (lon,lat)
-    i = Intersection(id=id, ints=ints, lat=lat, lon=lon, loc=WKTElement(loc,srid=4326), elev=elev)
+    loc = 'POINT(%r %r)' % (lon,lat)
+    i = GIntersection(id=id, ints=ints, lat=lat, lon=lon, loc=WKTElement(loc,srid=4326), elev=elev)
     session.add(i)
     return None
 
 def store_edge(way_id, way_name, end_a, end_b, edge_nodes):
-    e = Edge(way_id=way_id, way_name=way_name, end_a_id=end_a, end_b_id=end_b, edge_nodes=edge_nodes)
+    e = GEdge(way_id=way_id, way_name=way_name, end_a_id=end_a, end_b_id=end_b, edge_nodes=edge_nodes)
     session.add(e)
+    return None
+
+def find_intersection(id):
+    node = session.query(GNode).get(id)
+    if node:
+        return node.lat, node.lon
     return None
 
 def base_make(en):
