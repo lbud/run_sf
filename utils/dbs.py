@@ -30,14 +30,14 @@ class GEdge(Base):
 
     id = Column(Integer, primary_key=True)
     way_id = Column(BigInteger)
-    way_name = Column(String(50))
-    end_a_id = Column(BigInteger)#, ForeignKey('intersections.id'))
-    end_b_id = Column(BigInteger)#, ForeignKey('intersections.id'))
+    way_name = Column(String(50), nullable=True)
+    end_a_id = Column(BigInteger, ForeignKey('intersections.id'))
+    end_b_id = Column(BigInteger, ForeignKey('intersections.id'))
     edge_nodes = Column(ARRAY(BigInteger))
 
-    # ends = relationship("GIntersection", uselist=True, primaryjoin="or_(GEdge.end_a_id==GIntersection.id, "
-    #                                                 "GEdge.end_b_id==GIntersection.id)",
-    #                             backref="ends" )
+    ends = relationship("GIntersection", uselist=True, primaryjoin="or_(GEdge.end_a_id==GIntersection.id, "
+                                                    "GEdge.end_b_id==GIntersection.id)",
+                                backref="ends" )
 
 
 class GIntersection(Base):
@@ -49,9 +49,9 @@ class GIntersection(Base):
     loc = Column(Geometry(geometry_type='POINT', srid=4326))
     elev = Column(Float, nullable=True)
 
-    # edges = relationship("GEdge", primaryjoin="or_(GIntersection.id==GEdge.end_a_id, "
-    #                                         "GIntersection.id==GEdge.end_b_id)",
-    #                              backref="edges" )
+    edges = relationship("GEdge", primaryjoin="or_(GIntersection.id==GEdge.end_a_id, "
+                                            "GIntersection.id==GEdge.end_b_id)",
+                                 backref="edges" )
 
 def coords_tuple(n):
     location = session.query(func.ST_AsLatLonText(n.loc,'D.DDDDDDD')).first()[0].split()

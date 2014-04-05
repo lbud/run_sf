@@ -6,3 +6,6 @@ mapdata_backup.db
 .env
 demo/
 *.dump
+utils/rawdata/
+*.tgz
+*.osm

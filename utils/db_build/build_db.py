@@ -12,20 +12,37 @@ root = tree.getroot()
 def check_amenity(node):
     if node.findall('./tag[@k="amenity"]'):
         return True
-    else:
-        return False
+    return False
 
 def is_highway(way):
     return way.findall('./tag[@k="highway"]')
 
 def foot_restricted(way):
-    foot_rest = way.findall('./tag[@k="foot"][@v="no"]')
-    is_motorway = way.findall('./tag[@k="highway"][@v="motorway"]')
-    is_motorway_link = way.findall('./tag[@k="highway"][@v="motorway_link"]')
-    if foot_rest or is_motorway or is_motorway_link:
+    """
+    Flags all ways I don't want to include
+    """
+    foot_rest = way.findall('./tag[@k="foot"][@v="no"]')    # foot-restricted
+    is_motorway = way.findall('./tag[@k="highway"][@v="motorway"]')    # cars only
+    is_motorway_link = way.findall('./tag[@k="highway"][@v="motorway_link"]')    # onramps
+    is_service = way.findall('./tag[@k="highway"][@v="service"]')    # service roads
+    service_2 = way.findall('./tag[@k="service"]')    # another service road tag
+    access_no = way.findall('./tag[@k="access"][@v="no"]')    # no access
+    access_private = way.findall('./tag[@k="access"][@v="private"]')    # private access
+    is_sidewalk = way.findall('./tag[@k="footway"][@v="sidewalk"]')    # sidewalks -- proved problematic in testing
+    is_steps = way.findall('./tag[@k="highway"][@v="steps"]')    # steps -- not ideal + typically connect to sidewalks
+    no_sidewalk = way.findall('./tag[@k="sidewalk"][@v="no"]')    # steps -- not ideal + typically connect to sidewalks
+    if (foot_rest or 
+        is_motorway or 
+        is_motorway_link or 
+        is_service or 
+        service_2 or
+        access_no or 
+        access_private or 
+        is_sidewalk or 
+        is_steps):
         return True
-    else:
-        return False
+    return False
+
 
 if data_types == "nodes":
     node_list = root.findall('node')
@@ -41,7 +58,6 @@ if data_types == "nodes":
             n_id = node.attrib.get('id')
             n_lat = node.attrib.get('lat')
             n_lon = node.attrib.get('lon')
-            # n_elev = node.attrib.get('elev')
             n_elev = None
             dbs.store_node(n_id, n_lat, n_lon, n_elev)
         else:
@@ -51,6 +67,8 @@ if data_types == "nodes":
     print "amenities: ", amenity_count
     print "total nodes: ", node_count
     print "nodes added to db: ", accepted_nodes
+
+
 
 if data_types == "ways":
 
@@ -71,13 +89,16 @@ if data_types == "ways":
         if intersection[1] > 1:
             valid_ints.append(intersection[0])
             i_id = intersection[0]
-            print i_id
             i_ints = intersection[1]
             ## find intersection location from nodes table
             i_lat, i_lon = dbs.find_intersection(i_id)
             i_elev = None
             dbs.store_intersection(i_id, i_ints, i_lat, i_lon, i_elev)
-    dbs.session.commit()
+
+    print "number of ints:", len(valid_ints)
+    commit_1 = raw_input("commit ints? y/n >")
+    if commit_1 == "y":
+        dbs.session.commit()
 
 
     ## to get all ways with nodes
@@ -85,25 +106,47 @@ if data_types == "ways":
     for way in root.findall('way'):
         if is_highway(way) and not foot_restricted(way):
             w_id = way.attrib.get('id')
+            nametag = way.find('./tag[@k="name"]')
+            if nametag is not None:
+                name = nametag.get('v')
+            else:
+                name = "None"
             ways[w_id] = []
             for node in way.findall('./nd'):
                 ways[w_id].append(node.attrib.get('ref'))
+            ways[w_id].append(name)
 
 
     unfinished_edges = []
     for way in ways.items():
         this_edge = []
+        between_nodes = []
         way_id = way[0]
-        intersections = way[1]
+        intersections = way[1][:-1]
+        way_name = way[1][-1]
+        if way_name == "None":
+            way_name = None
+
         for i in range(len(intersections)):
+
+            if len(this_edge) == 1:
+                if len(intersections[i]) > 0:
+                    between_nodes.append(int(intersections[i]))
+
             if intersections[i] in valid_ints:
-                this_edge.append(intersections[i])
+                this_edge.append(int(intersections[i]))
                 if len(this_edge) == 2:
                     end_a = this_edge[0]
-                    end_b = this_edge[1]
-                    dbs.store_edge(way_id, end_a, end_b)
+                    end_b = this_edge[-1]
+                    between_nodes = between_nodes[:-1]
+                    dbs.store_edge(way_id, way_name, end_a, end_b, between_nodes)
                     this_edge = this_edge[1:]
+                    between_nodes = []
+
             if i == len(intersections) - 1 and not (intersections[i] in valid_ints):
                 this_edge.append(intersections[i])
                 unfinished_edges.append(this_edge)
-    dbs.session.commit()
+
+    commit_2 = raw_input("commit edges? y/n >")
+    if commit_2 == "y":
+        dbs.session.commit()

@@ -1,8 +1,8 @@
 import urllib2
-import save_data as sd
+import dbs
 import xml.etree.ElementTree as ET
 
-intersections = sd.session.query(sd.Intersection).all()
+intersections = dbs.session.query(dbs.GIntersection).all()
 
 
 ## function definitions for HTTP calls
@@ -66,4 +66,4 @@ for i in range(len(intersections)):
 
 committing = raw_input("commit? y/n > ")
 if committing == "y":
-    sd.session.commit()
+    dbs.session.commit()
