@@ -1,6 +1,9 @@
 import urllib2
-import dbs
 import xml.etree.ElementTree as ET
+
+import sys
+sys.path.append('..')
+import dbs
 
 intersections = dbs.session.query(dbs.GIntersection).all()
 

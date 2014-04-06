@@ -33,7 +33,7 @@ class Route(object):
         full_path = self.path.get('path')
         clean_path = [full_path[0]]
         for i in range(1, len(full_path)-1):
-            if full_path[i].from_way == full_path[i-1].from_way and full_path[i].from_way == full_path[i+1].from_way:
+            if full_path[i].way_name == full_path[i-1].way_name and full_path[i].way_name == full_path[i+1].way_name:
                 continue
             else:
                 clean_path.append(full_path[i])
@@ -96,20 +96,35 @@ class Node(object):
             return 100 * self.rel_climb / find_dist(self, self.parent)
         return 0.0
 
-    @property
-    def from_way(self):
+    @property # for use in the following two properties, to minimize DB queries
+    def shared_edge(self):
         if self.parent:
             shared_edge = filter(lambda x: x in self.edges, self.parent.edges)
             if shared_edge:
-                return shared_edge[0].way_id
+                return shared_edge[0]
         return None
 
-    # def move_cost(self, last): # for computing g-scores
-    #     if not last:
-    #         return 0
-    #     geodesic = find_dist(last, self)
-    #     climb = vert_climb(last,self)
-    #     return geodesic + pow(abs(climb),3)
+    @property
+    def way_name(self):
+        if self.shared_edge:
+            return self.shared_edge.way_name
+        return None
+
+    @property
+    def from_way(self):
+        if self.shared_edge:
+            return self.shared_edge.way_id
+        return None
+
+    # @property
+    # def from_way(self):
+    #     if self.parent:
+    #         shared_edge = filter(lambda x: x in self.edges, self.parent.edges)
+    #         if shared_edge:
+    #             return shared_edge[0].way_id
+    #     return None
+
+
 
     def h_value(self, end):
         miles_to_end = find_miles(self,end)

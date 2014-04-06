@@ -9,10 +9,10 @@ def find_route(start, route_distance):
     start_node = start
     global total_route_distance
     total_route_distance = route_distance
-    first_distance = float(route_distance) * .45
+    first_distance = float(route_distance) * .38
     first_leg = a_star(start_node, None, first_distance, explore_score_fn)
     first_end = first_leg.get('path')[-1]
-    # print [(p.id, p.lat, p.lon) for p in first_leg.get('path')]
+    print [(p.id, p.lat, p.lon) for p in first_leg.get('path')]
 
     ## make score function for return, to avoid path out
     return_score_fn = make_loop_score_fn(first_leg.get('path'))
@@ -35,19 +35,26 @@ def explore_score_fn(start, end, current, route_distance):
     ## exploring out: minimize elevation gain, incentivize going "away" by minimizing inverse dist
 
     climb_score = current.rel_climb*current.elev_diff
+    # TODO: refine. options:
+    # current.rel_climb
+    # current.elev_diff
+    # current.abs_climb
+    # current.grade
+    # current.elev_diff
 
-    # (pow(current.rel_climb, 2) + abs(pow(current.grade,3)) + 2*current.elev_diff)
     distance_score = 60000 * current.i_value(start) + 2*current.distance
-#TODO - refine
+    # TODO: refine
 
-    # print "try", current.rel_climb*current.elev_diff
-    # print "rel climb", current.rel_climb
-    # print "abs climb", current.abs_climb
-    # print "grade", current.grade
-    # print "overall elev d", current.elev_diff
-    # print  "climb score", climb_score
-    # print "distance score", distance_score, "\n"
-    return climb_score + distance_score
+    ## try to make it not double back on the other side of a divided street
+    doubling_back = 0
+    if current.parent and current.parent.parent and current.parent.parent.parent:
+        if (current.way_name != current.parent.way_name and 
+            current.way_name == current.parent.parent.way_name or
+            current.way_name == current.parent.parent.parent.way_name):
+            doubling_back = 100
+
+
+    return climb_score + distance_score + doubling_back
 
 
 def make_loop_score_fn(path_to_avoid):
@@ -55,38 +62,30 @@ def make_loop_score_fn(path_to_avoid):
         ## more traditional A* scoring coming back
         # score = (pow((current.rel_climb + current.abs_climb + current.grade + current.elev_diff),2) + current.distance + current.h_value(end))
         score = 10*abs(current.grade) + current.elev_diff + 20*current.distance + 20*current.h_value(end)
-        # print "10*grade", 10*abs(current.grade)
-        # print "overall gain squared", current.elev_diff
-        # print "total dist", current.distance*20
-        # print "h val", current.h_value(end)*20
-        # print "score", score, "\n"
-        # print "rel climb", current.rel_climb
-        # print "abs climb", current.abs_climb
-        # print "grade", current.grade
-        # print "overall elev d", current.elev_diff
-        # print "distance", current.distance
-        # print "dist desired remaining", route_distance - current.distance
-        # print "h_value", current.h_value(end)
-        # print "score w/o avoiding,", score
+        # TODO: refine. options:
+        # current.grade
+        # current.elev_diff
+        # current.distance
+        # current.h_value(end)
+        # current.rel_climb
+        # current.abs_climb
+        # current.grade
+        # current.elev_diff
+        # current.distance
+        # route_distance - current.distance
 
         ## encourage going away from path already taken
         path_ids = [n.id for n in path_to_avoid]
         nearest = dbs.session.query(dbs.GIntersection).filter(dbs.GIntersection.id.in_(path_ids)).order_by(dbs.func.ST_Distance(dbs.GIntersection.loc, current.loc)).first()
         dist_to_path = dist(current, nearest)
-        # print "dist to path", dist_to_path
+
         if dist_to_path != 0:
             score_from_avoiding = 1/dist_to_path
-            # print "score from avoiding", score_from_avoiding
+
         else:
             score_from_avoiding = 100
-            # print "oops found a non-score: score_from_avoiding=100"
+            # TODO check to see that this is an appropriate score -- both beginning and end of return
 
-        # print "SCORE," 
-        # print score + score_from_avoiding
-        # print "\n"
-        print score_from_avoiding*current.h_value(end)
-        # print "scored from avoiding\n"
-#TODO - refine
         return score + (10 * current.h_value(end) * score_from_avoiding)
 
     return actual_loop_score_fn
@@ -94,7 +93,7 @@ def make_loop_score_fn(path_to_avoid):
 
 def a_star(start, end, route_distance, score_fn):
     global total_route_distance
-    print total_route_distance
+    # print total_route_distance
     open_set = set()
     closed_set = set()
     current = start

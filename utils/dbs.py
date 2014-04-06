@@ -4,11 +4,11 @@ from sqlalchemy import Column, Integer, Float, BigInteger, String
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import sessionmaker, scoped_session, relationship, backref
 from geoalchemy2 import Geometry, WKTElement
-# from config import DB_URI
+from config import DB_URI
 
 
 
-ENGINE = create_engine("postgres://lbudorick@localhost/run", echo=False)
+ENGINE = create_engine(DB_URI, echo=False)
 session = scoped_session(sessionmaker(bind=ENGINE,
                                       autocommit=False,
                                       autoflush=False))
