@@ -1,7 +1,7 @@
 build/
 env/
 etc/
-mapdata_backup.db
+*.db
 *.pyc
 .env
 demo/

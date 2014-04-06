@@ -14,19 +14,11 @@ class Route(object):
         self.first = Node(nearest_intersection(self.start).id)
         self.route_distance = float(route_distance)
         self.path = find_route(self.first, route_distance)
-
+        self.full_path = self.path.get('path')
         self.distance = self.path.get('distance')
         self.gain = self.path.get('gain')
         self.clean = self.clean_path
-
-
-    @property
-    def possible_ends(self):
-        # TODO: find a set of possible end points
-        # for now, just return one
-        ##
-        # return [Node()s]
-        pass
+        self.full_node_path = self.all_nodes
 
     @property
     def clean_path(self):
@@ -41,11 +33,21 @@ class Route(object):
         return clean_path
 
     @property
+    def all_nodes(self):
+        node_list = []
+        for i in self.full_path:
+            if i.parent:
+                for n in range(len(i.way_nodes)):
+                    node_list.append(i.way_nodes[n])
+            node_list.append(i)
+        return node_list
+
+
+    @property
     def render(self):
+        print self.full_node_path
         start = [[self.start[0], self.start[1]]]
-        # FOR DEBUGGING: return all
-        # coord_list = start + [[n.lat, n.lon] for n in self.path.get('path')[1:-1]] + start
-        coord_list = start + [[n.lat, n.lon] for n in self.clean[1:-1]] + start
+        coord_list = start + [[n.lat, n.lon] for n in self.full_node_path[1:-1] if n is not None] + start
         coords = json.dumps({"coords":[c for c in coord_list]})
         return coords
 
@@ -115,6 +117,19 @@ class Node(object):
         if self.shared_edge:
             return self.shared_edge.way_id
         return None
+
+    @property
+    def way_nodes(self):
+        mid_nodes = []
+        if self.shared_edge:
+            mid_node_list = self.shared_edge.edge_nodes
+            for i in range(len(mid_node_list)):
+                mid_nodes.append(dbs.session.query(dbs.GNode).get(mid_node_list[i]))
+            if self.shared_edge.end_b_id == self.id:
+                # mid_node_list.reverse()
+                mid_node_list = mid_node_list[::-1]
+        return mid_nodes
+
 
     # @property
     # def from_way(self):

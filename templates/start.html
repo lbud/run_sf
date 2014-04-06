@@ -104,7 +104,8 @@
                     }
                 });
                 $('#go').click(function() {
-                    directionsDisplay.setMap(null);
+                    // routeLine.setMap(null);
+                    clearRoute();
                     $(document).unbind('keyup.escape');
                 });
             });
