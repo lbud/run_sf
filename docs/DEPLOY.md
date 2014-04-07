@@ -46,7 +46,10 @@ sudo reboot
 ## Install PostgreSQL/PostGIS and supporting files
 
 ```
-sudo aptitude install postgresql postgis python-dev libpq-dev -y
+echo "deb http://apt.postgresql.org/pub/repos/apt/ precise-pgdg main" | sudo tee /etc/apt/sources.list.d/postgis.list
+wget --quiet -O - http://apt.postgresql.org/pub/repos/apt/ACCC4CF8.asc | sudo apt-key add -
+sudo aptitude update
+sudo aptitude install postgresql-9.3 postgresql-9.3-postgis-2.1 postgresql-client-9.3
 ```
 
 ## Install virtualenv and virtualenvwrapper
@@ -90,3 +93,11 @@ git clone -q git@github.com:lbud/run_sf.git ~/apps/run_sf/project
 ## Set up Nginx
 
 Copy docs/templates/nginx-default to /etc/nginx/sites-available/default
+
+## Set up PostgreSQL database
+
+```
+sudo -u postgres psql -c "create user lbudorick with password '$password';"
+sudo -u postgres createdb -O lbudorick run
+sudo -u postgres psql -d run -c 'create extension postgis;'
+```
