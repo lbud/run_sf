@@ -6,7 +6,7 @@ from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, scoped_session, sessionmaker
 
-from ..config import DB_URI
+from config import DB_URI
 
 ENGINE = create_engine(DB_URI, echo=False)
 session = scoped_session(

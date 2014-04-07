@@ -1,5 +1,4 @@
-from finding_fns import find_miles as dist
-# from finding_fns import find_dist as dist_feet
+from .finding_fns import find_miles as dist
 import dbs
 
 
