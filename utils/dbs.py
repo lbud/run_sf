@@ -67,6 +67,7 @@ class GIntersection(Base):
 
 
 def coords_tuple(n):
+    """ For reading coordinates out of PostGIS elements """
     location = session.query(
         func.ST_AsLatLonText(n.loc, 'D.DDDDDDD')
     ).first()[0].split()
@@ -75,12 +76,14 @@ def coords_tuple(n):
 
 
 def store_node(id, lat, lon, elev):
+    """ Store nodes in DB """
     n = GNode(id=id, lat=lat, lon=lon, elev=elev)
     session.add(n)
     return None
 
 
 def store_intersection(id, ints, lat, lon, elev):
+    """ Store intersections in DB """
     loc = 'POINT(%r %r)' % (lon, lat)
     i = GIntersection(
         id=id, ints=ints, lat=lat, lon=lon, loc=WKTElement(loc, srid=4326),
@@ -91,6 +94,7 @@ def store_intersection(id, ints, lat, lon, elev):
 
 
 def store_edge(way_id, way_name, end_a, end_b, edge_nodes):
+    """ Store edges in DB """
     e = GEdge(
         way_id=way_id, way_name=way_name, end_a_id=end_a, end_b_id=end_b,
         edge_nodes=edge_nodes
@@ -100,6 +104,7 @@ def store_edge(way_id, way_name, end_a, end_b, edge_nodes):
 
 
 def find_intersection(id):
+    """ Queries a node's lat/long coordinates """
     node = session.query(GNode).get(id)
     if node:
         return node.lat, node.lon
@@ -107,6 +112,7 @@ def find_intersection(id):
 
 
 def base_make(en):
+    """ Make DB schema. Requires 'postgres' as arg to confirm. """
     if en == "postgres":
         Base.metadata.create_all(ENGINE)
     else:

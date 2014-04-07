@@ -24,6 +24,7 @@ var map = new google.maps.Map(document.getElementById("map-canvas"),
     mapOptions);
 
 var routeLine = null;
+var startMarker = null;
 
 function render(stops) {
 
@@ -40,6 +41,11 @@ function render(stops) {
         strokeOpacity: .75 
     });
 
+    startMarker = new google.maps.Marker({
+        position: new window.google.maps.LatLng(stops[0][0], stops[0][1]),
+        map: map
+    });
+
     var bounds = new google.maps.LatLngBounds();
     for (var i = 0; i < nodeList.length; i++) {
         bounds.extend(nodeList[i]);
@@ -52,5 +58,9 @@ function render(stops) {
 
 
 function clearRoute() {
+    // clears route and marker if user clicks to get a new route without refreshing page
+
     routeLine.setMap(null);
+    startMarker.setMap(null);
+
 }

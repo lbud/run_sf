@@ -21,12 +21,16 @@ def find():
     print(distance)
 
     rt = models.Route(start_loc, distance)
+    route = rt.render
+
+    # Print street names, elevation gain, and distance
     for c in rt.clean:
         print(c.way_name)
     print(rt.gain)
     print(rt.distance)
-    route = rt.render
     print(route)
+
+    # Sends JSON coordinate list to waiting AJAX request
     return route
 
 if __name__ == "__main__":

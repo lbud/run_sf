@@ -37,6 +37,13 @@ def vert_climb(x1, x2):
     return x2.elev - x1.elev
 
 
+
+# Below functions are currently unused.
+# These can be used as an alternative to hackish A* algorithm:
+# gen_radii uses radials (which uses vincenty) to generate a circular grid
+# of points within a given radius of a location, which can then be checked
+# for elevations similar to starting elevation.
+
 def radials(x1, dist, offset=0):
     """ Returns a set of eight intersection objects in cardinal + ordinal
         directions (or offsets)

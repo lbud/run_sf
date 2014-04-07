@@ -5,34 +5,36 @@ import sys
 sys.path.append('..')
 import dbs
 
+# This file only requests elevation data for intersections, not all nodes, due to Google API limit.
+
 intersections = dbs.session.query(dbs.GIntersection).all()
 
 
-## function definitions for HTTP calls
+# Function definitions for HTTP calls:
 
-# encode locations for urls
 def encode_location(lat, lon):
+    """ Encode locations for URLs """
     location = str(lat) + "," + str(lon) + "|"
     return location
 
-# google elevation API requests
 def build_url(encoded_string):
+    """ Google Elevation API request strings """
     url_string = "http://maps.googleapis.com/maps/api/elevation/xml?locations=%s&sensor=false"
     return url_string % encoded_string
 
-# read XML response
 def get_elevations(url):
+    """ Read XML response from elevation request """
     response = urllib2.urlopen(url)
     xml = response.read()
     return xml
 
-# parse data into readable xml from root
 def parse_results(result_xml):
+    """ Parse data into readable XML from root """
     r_root = ET.fromstring(result_xml)
     return r_root
 
-# assign elevations from parsed XML to sqlalchemy objects
 def assign_elevations(xml_root, i_data):
+    """ For assigning elevations from parsed XML to SQLAlchemy intersection objects"""
     this_index = 0
     for result in xml_root.iter('result'):
         elev = result.find('elevation').text
@@ -41,7 +43,7 @@ def assign_elevations(xml_root, i_data):
     return i_data
 
 
-## initialize empty containers for HTTP requests
+# Initialize empty containers for HTTP requests
 
 locations = ""
 query_set = []
@@ -52,18 +54,18 @@ for i in range(len(intersections)):
     locations += next
     query_set.append(x)
 
-    ## construct HTTP request for strings approaching max length
+    # Construct HTTP request for strings approaching max length
     if len(locations) + len(next) > 1500 or i == len(intersections)-1:
 
-        ## build URLs, get XML data
+        # Build URLs, get XML data
         url = build_url(locations[:-1])
         r_xml = get_elevations(url)
         r_root = parse_results(r_xml)
 
-        ## assign elevations back Intersection objects
+        # Assign elevations back to intersection objects
         assign_elevations(r_root, query_set)
 
-        ## reset containers for next request
+        # Reset containers for next request
         query_set = []
         locations = ""
 

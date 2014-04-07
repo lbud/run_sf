@@ -4,7 +4,7 @@ import sys
 sys.path.append('..')
 import dbs
 
-## parse initial input XML
+# Parse initial input XML
 
 file_to_parse = raw_input("file > ")
 data_types = raw_input("nodes or ways? > ")
@@ -46,6 +46,10 @@ def foot_restricted(way):
         return True
     return False
 
+# To parse node files:
+# Find all nodes;
+# Check to see that they aren't amenity-tagged;
+# Store nodes in nodes table.
 
 if data_types == "nodes":
     node_list = root.findall('node')
@@ -72,10 +76,16 @@ if data_types == "nodes":
     print "nodes added to db: ", accepted_nodes
 
 
+# To parse way files:
 
 if data_types == "ways":
 
-    ## to get intersections
+    # Find all ways;
+    # Check to see that it is tagged "highway" (all roads) and isn't one of the tags to exclude 
+    #     (see foot_restricted above);
+    # Find all the nodes the way contains;
+    # Store all nodes therein in a dictionary in order to count node instances (to find intersections);
+
     intersections = {}
     for way in root.findall('way'):
         if is_highway(way) and not foot_restricted(way):
@@ -85,6 +95,10 @@ if data_types == "ways":
                     intersections[n_ref] = 1
                 else:
                     intersections[n_ref] += 1
+
+    # Iterate through the dictionary:
+    # for those nodes that are seen more than once, consider them intersections, 
+    # and store in intersections table;
 
     valid_ints = []
 
@@ -104,7 +118,13 @@ if data_types == "ways":
         dbs.session.commit()
 
 
-    ## to get all ways with nodes
+    # To store edges:
+    # Iterate over all ways;
+    # If a way is indeed a highway and not one of the ways to exclude,
+    # read street name and way ID,
+    # build a dictionary with each way ID as key
+    # and list of nodes it contains + its name as values;
+
     ways = {}
     for way in root.findall('way'):
         if is_highway(way) and not foot_restricted(way):
@@ -119,6 +139,10 @@ if data_types == "ways":
                 ways[w_id].append(node.attrib.get('ref'))
             ways[w_id].append(name)
 
+    # Keep unfinished_edges list to check later, just in case.
+    # Read through nodes in each way in 'ways' dictionary;
+    # For segments between each node contained that's considered an 'intersection,'
+    # store this edge and relevant data (including contained nodes, for rendering) in edges table.
 
     unfinished_edges = []
     for way in ways.items():
