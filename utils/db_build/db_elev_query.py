@@ -1,11 +1,15 @@
 import urllib2
 import xml.etree.ElementTree as ET
 
-import sys
-sys.path.append('..')
+if __name__ == '__main__' and __package__ is None:
+    from os import path
+    import sys
+    sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
+
 import dbs
 
-# This file only requests elevation data for intersections, not all nodes, due to Google API limit.
+# This file only requests elevation data for intersections, not all nodes, due
+# to Google API limit.
 
 intersections = dbs.session.query(dbs.GIntersection).all()
 
@@ -17,10 +21,15 @@ def encode_location(lat, lon):
     location = str(lat) + "," + str(lon) + "|"
     return location
 
+
 def build_url(encoded_string):
     """ Google Elevation API request strings """
-    url_string = "http://maps.googleapis.com/maps/api/elevation/xml?locations=%s&sensor=false"
+    url_string = (
+        "http://maps.googleapis.com/maps/api/elevation/xml?"
+        "locations=%s&sensor=false"
+    )
     return url_string % encoded_string
+
 
 def get_elevations(url):
     """ Read XML response from elevation request """
@@ -28,13 +37,17 @@ def get_elevations(url):
     xml = response.read()
     return xml
 
+
 def parse_results(result_xml):
     """ Parse data into readable XML from root """
     r_root = ET.fromstring(result_xml)
     return r_root
 
+
 def assign_elevations(xml_root, i_data):
-    """ For assigning elevations from parsed XML to SQLAlchemy intersection objects"""
+    """
+    For assigning elevations from parsed XML to SQLAlchemy intersection objects
+    """
     this_index = 0
     for result in xml_root.iter('result'):
         elev = result.find('elevation').text
