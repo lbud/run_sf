@@ -1,48 +1,63 @@
 import xml.etree.ElementTree as ET
 
-import sys
-sys.path.append('..')
+if __name__ == '__main__' and __package__ is None:
+    from os import path
+    import sys
+    sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
+
 import dbs
 
 # Parse initial input XML
-
 file_to_parse = raw_input("file > ")
 data_types = raw_input("nodes or ways? > ")
 
 tree = ET.parse(file_to_parse)
 root = tree.getroot()
 
+
 def check_amenity(node):
     if node.findall('./tag[@k="amenity"]'):
         return True
     return False
 
+
 def is_highway(way):
     return way.findall('./tag[@k="highway"]')
+
 
 def foot_restricted(way):
     """
     Flags all ways I don't want to include
     """
-    foot_rest = way.findall('./tag[@k="foot"][@v="no"]')    # foot-restricted
-    is_motorway = way.findall('./tag[@k="highway"][@v="motorway"]')    # cars only
-    is_motorway_link = way.findall('./tag[@k="highway"][@v="motorway_link"]')    # onramps
-    is_service = way.findall('./tag[@k="highway"][@v="service"]')    # service roads
-    service_2 = way.findall('./tag[@k="service"]')    # another service road tag
-    access_no = way.findall('./tag[@k="access"][@v="no"]')    # no access
-    access_private = way.findall('./tag[@k="access"][@v="private"]')    # private access
-    is_sidewalk = way.findall('./tag[@k="footway"][@v="sidewalk"]')    # sidewalks -- proved problematic in testing
-    is_steps = way.findall('./tag[@k="highway"][@v="steps"]')    # steps -- not ideal + typically connect to sidewalks
-    no_sidewalk = way.findall('./tag[@k="sidewalk"][@v="no"]')    # steps -- not ideal + typically connect to sidewalks
-    if (foot_rest or 
-        is_motorway or 
-        is_motorway_link or 
-        is_service or 
-        service_2 or
-        access_no or 
-        access_private or 
-        is_sidewalk or 
-        is_steps):
+    # foot-restricted
+    foot_rest = way.findall('./tag[@k="foot"][@v="no"]')
+    # cars only
+    is_motorway = way.findall('./tag[@k="highway"][@v="motorway"]')
+    # onramps
+    is_motorway_link = way.findall('./tag[@k="highway"][@v="motorway_link"]')
+    # service roads
+    is_service = way.findall('./tag[@k="highway"][@v="service"]')
+    # another service road tag
+    service_2 = way.findall('./tag[@k="service"]')
+    # no access
+    access_no = way.findall('./tag[@k="access"][@v="no"]')
+    # private access
+    access_private = way.findall('./tag[@k="access"][@v="private"]')
+    # sidewalks -- proved problematic in testing
+    is_sidewalk = way.findall('./tag[@k="footway"][@v="sidewalk"]')
+    # steps -- not ideal + typically connect to sidewalks
+    is_steps = way.findall('./tag[@k="highway"][@v="steps"]')
+    # steps -- not ideal + typically connect to sidewalks
+    no_sidewalk = way.findall('./tag[@k="sidewalk"][@v="no"]')
+    if (foot_rest or
+            is_motorway or
+            is_motorway_link or
+            is_service or
+            service_2 or
+            access_no or
+            access_private or
+            is_sidewalk or
+            is_steps):
         return True
     return False
 
@@ -81,10 +96,11 @@ if data_types == "nodes":
 if data_types == "ways":
 
     # Find all ways;
-    # Check to see that it is tagged "highway" (all roads) and isn't one of the tags to exclude 
-    #     (see foot_restricted above);
+    # Check to see that it is tagged "highway" (all roads) and isn't one of the
+    # tags to exclude (see foot_restricted above);
     # Find all the nodes the way contains;
-    # Store all nodes therein in a dictionary in order to count node instances (to find intersections);
+    # Store all nodes therein in a dictionary in order to count node instances
+    # (to find intersections);
 
     intersections = {}
     for way in root.findall('way'):
@@ -96,9 +112,8 @@ if data_types == "ways":
                 else:
                     intersections[n_ref] += 1
 
-    # Iterate through the dictionary:
-    # for those nodes that are seen more than once, consider them intersections, 
-    # and store in intersections table;
+    # Iterate through the dictionary: for those nodes that are seen more than
+    # once, consider them intersections, and store in intersections table;
 
     valid_ints = []
 
@@ -107,7 +122,7 @@ if data_types == "ways":
             valid_ints.append(intersection[0])
             i_id = intersection[0]
             i_ints = intersection[1]
-            ## find intersection location from nodes table
+            # find intersection location from nodes table
             i_lat, i_lon = dbs.find_intersection(i_id)
             i_elev = None
             dbs.store_intersection(i_id, i_ints, i_lat, i_lon, i_elev)
@@ -116,7 +131,6 @@ if data_types == "ways":
     commit_1 = raw_input("commit ints? y/n >")
     if commit_1 == "y":
         dbs.session.commit()
-
 
     # To store edges:
     # Iterate over all ways;
@@ -141,8 +155,9 @@ if data_types == "ways":
 
     # Keep unfinished_edges list to check later, just in case.
     # Read through nodes in each way in 'ways' dictionary;
-    # For segments between each node contained that's considered an 'intersection,'
-    # store this edge and relevant data (including contained nodes, for rendering) in edges table.
+    # For segments between each node contained that's considered an
+    # 'intersection,' store this edge and relevant data (including contained
+    # nodes, for rendering) in edges table.
 
     unfinished_edges = []
     for way in ways.items():
@@ -166,11 +181,15 @@ if data_types == "ways":
                     end_a = this_edge[0]
                     end_b = this_edge[-1]
                     between_nodes = between_nodes[:-1]
-                    dbs.store_edge(way_id, way_name, end_a, end_b, between_nodes)
+                    dbs.store_edge(
+                        way_id, way_name, end_a, end_b, between_nodes
+                    )
                     this_edge = this_edge[1:]
                     between_nodes = []
 
-            if i == len(intersections) - 1 and not (intersections[i] in valid_ints):
+            if i == len(intersections) - 1 and not (
+                    intersections[i] in valid_ints
+            ):
                 this_edge.append(intersections[i])
                 unfinished_edges.append(this_edge)
 
