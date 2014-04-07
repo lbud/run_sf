@@ -68,3 +68,25 @@ sudo aptitude install git -y
 ```
 sudo aptitude install nginx -y
 ```
+
+## Create the project directory infrastructure
+
+```
+mkdir -p ~/apps/run_sf/shared/{config,log,pids,sockets}
+mkdir -p ~/apps/run_sf/project
+```
+
+Check out the code
+
+```
+git clone -q git@github.com:lbud/run_sf.git ~/apps/run_sf/project
+```
+
+## Set up uWSGI
+
+1. Copy docs/templates/uwsgi.ini to ~/apps/run_sf/shared/config/
+2. Copy docs/templates/uwsgi-run_sf.conf to /etc/init/
+
+## Set up Nginx
+
+Copy docs/templates/nginx-default to /etc/nginx/sites-available/default
