@@ -1,13 +1,12 @@
-from utils.dbs import GIntersection
-import utils.dbs as dbs
-from math import sqrt, pow
-from utils.finding_fns import find_dist, vert_climb, find_miles, vincenty, radials, gen_radii, nearest_intersection
-from utils.pathfinding import find_route
 import json
+
+from utils.finding_fns import find_dist, find_miles, nearest_intersection
+from utils.pathfinding import find_route
+import utils.dbs as dbs
 
 
 class Route(object):
-    def __init__(self, start, route_distance, end=None): #, route_type="loop"
+    def __init__(self, start, route_distance, end=None):  # route_type="loop"
         self.start = start
         # self.route_type = route_type
         self.end = end
@@ -25,7 +24,8 @@ class Route(object):
         full_path = self.path.get('path')
         clean_path = [full_path[0]]
         for i in range(1, len(full_path)-1):
-            if full_path[i].way_name == full_path[i-1].way_name and full_path[i].way_name == full_path[i+1].way_name:
+            if full_path[i].way_name == full_path[i-1].way_name and \
+                    full_path[i].way_name == full_path[i+1].way_name:
                 continue
             else:
                 clean_path.append(full_path[i])
@@ -42,14 +42,16 @@ class Route(object):
             node_list.append(i)
         return node_list
 
-
     @property
     def render(self):
         print self.full_node_path
         start = [[self.start[0], self.start[1]]]
-        coord_list = start + [[n.lat, n.lon] for n in self.full_node_path[1:-1] if n is not None] + start
-        coords = json.dumps({"coords":[c for c in coord_list]})
+        coord_list = start + [
+            [n.lat, n.lon] for n in self.full_node_path[1:-1] if n is not None
+        ] + start
+        coords = json.dumps({"coords": [c for c in coord_list]})
         return coords
+
 
 class Node(object):
     def __init__(self, id):
@@ -98,7 +100,8 @@ class Node(object):
             return 100 * self.rel_climb / find_dist(self, self.parent)
         return 0.0
 
-    @property # for use in the following two properties, to minimize DB queries
+    # for use in the following two properties, to minimize DB queries
+    @property
     def shared_edge(self):
         if self.parent:
             shared_edge = filter(lambda x: x in self.edges, self.parent.edges)
@@ -124,25 +127,16 @@ class Node(object):
         if self.shared_edge:
             mid_node_list = self.shared_edge.edge_nodes
             for i in range(len(mid_node_list)):
-                mid_nodes.append(dbs.session.query(dbs.GNode).get(mid_node_list[i]))
+                mid_nodes.append(
+                    dbs.session.query(dbs.GNode).get(mid_node_list[i])
+                )
             if self.shared_edge.end_b_id == self.id:
                 # mid_node_list.reverse()
                 mid_node_list = mid_node_list[::-1]
         return mid_nodes
 
-
-    # @property
-    # def from_way(self):
-    #     if self.parent:
-    #         shared_edge = filter(lambda x: x in self.edges, self.parent.edges)
-    #         if shared_edge:
-    #             return shared_edge[0].way_id
-    #     return None
-
-
-
     def h_value(self, end):
-        miles_to_end = find_miles(self,end)
+        miles_to_end = find_miles(self, end)
         return miles_to_end
 
     def i_value(self, start):
@@ -155,17 +149,3 @@ class Node(object):
         if True in {self.id == o.id for o in other_set}:
             return True
         return False
-
-
-
-h = Node(65314183)   # gough & post                                         elev=63
-n = Node(65303561)   # gough & sutter                                       elev=70
-le = Node(65319011)     # laguna & ellis -- .3 mi away (geodesic)           elev=36
-vl = Node(295191529)    # van ness & lombard -- 1 mi away (geodesic)        elev=30
-ocean = Node(65304540)  # great highway & lincoln -- 4.9 mi away (geodesic) elev=7
-mp = Node(1723739266)   # market & pine -- 1.6 mi (geodesic)                elev=3
-em = Node(65345229)     # green & embarcadero -- 1.7m                       elev=2.5
-ll = Node(65336684)     # lombard & lyon -- 1.5m                            elev=23
-ap = Node(65315754)     # pacific & arguello -- 1.87m                       elev=91
-fg = Node(65336114)     # greenwich & fillmore -- 1.06m                     elev=18
-gs = Node(258759451)    # geary & scott --                                  elev=45 
