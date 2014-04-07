@@ -3,14 +3,15 @@ import dbs
 
 
 def find_route(start, route_distance):
-    """ Finds a route out and back from a point, given a distance.
+    """
+    Finds a route out and back from a point, given a distance.
 
-    On the way out, with no endpoint, this searches for nodes with relatively 
+    On the way out, with no endpoint, this searches for nodes with relatively
     little elevation gain in the general direction of "away."
 
     On the way back, the start point is the endpoint and it acts more like
-    traditional A*, but also takes into account elevation as well as the 
-    path already taken (and tries to avoid it), so as to create a looping route.
+    traditional A*, but also takes into account elevation as well as the path
+    already taken (and tries to avoid it), so as to create a looping route.
     """
 
     start_node = start
@@ -42,9 +43,9 @@ def find_route(start, route_distance):
 
 
 def explore_score_fn(start, end, current, route_distance):
-    """ Scores nodes for the "explore out" segment.
-    Incentivizes going "away" by assigning lower costs to farther nodes 
-    (using inverse distance).
+    """
+    Scores nodes for the "explore out" segment. Incentivizes going "away" by
+    assigning lower costs to farther nodes (using inverse distance).
     """
 
     climb_score = current.rel_climb*current.elev_diff
@@ -72,9 +73,10 @@ def explore_score_fn(start, end, current, route_distance):
 
 def make_loop_score_fn(path_to_avoid):
     def actual_loop_score_fn(start, end, current, route_distance):
-        """ Uses more traditional A* scoring on return leg, 
-        as it now has an end point.
-        Takes into account elevation, distance to current node, distance from node to end.
+        """
+        Uses more traditional A* scoring on return leg, as it now has an end
+        point. Takes into account elevation, distance to current node, distance
+        from node to end.
         """
 
         # more traditional A* scoring coming back
@@ -106,21 +108,23 @@ def make_loop_score_fn(path_to_avoid):
         if dist_to_path != 0:
             score_from_avoiding = 1/dist_to_path
 
-        # If this happens to be the first node (so distance = 0), just give it a high score.
+        # If this happens to be the first node (so distance = 0), just give it
+        # a high score.
         else:
             score_from_avoiding = 100
 
-        # Multiply score from avoiding by heuristic cost to the endpoint, 
-        # so that the closer it gets to the end, 
-        # the closer it may get to the path already taken.
+        # Multiply score from avoiding by heuristic cost to the endpoint, so
+        # that the closer it gets to the end, the closer it may get to the path
+        # already taken.
         return score + (10 * current.h_value(end) * score_from_avoiding)
 
     return actual_loop_score_fn
 
 
 def a_star(start, end, route_distance, score_fn):
-    """ Modeled after traditional A* pathfinding.
-    Keeps sets of nodes searched and to search, in order to find the best route.
+    """
+    Modeled after traditional A* pathfinding.  Keeps sets of nodes searched and
+    to search, in order to find the best route.
     """
 
     global total_route_distance
@@ -167,8 +171,8 @@ def a_star(start, end, route_distance, score_fn):
             if neighbor.is_in(closed_set):
                 continue
 
-            # Removes from open set to be replaced if 
-            # new score to node is better than that already found.
+            # Removes from open set to be replaced if new score to node is
+            # better than that already found.
             found = None
             for n in open_set:
                 if n.id == neighbor.id:

@@ -41,7 +41,7 @@ class Route(object):
     @property
     def all_nodes(self):
         """ Returns list of intersection nodes found through pathfinding
-        algorithm, plus all nodes contained between intersections (for better 
+        algorithm, plus all nodes contained between intersections (for better
         rendering), in order.
         """
         node_list = []
@@ -144,7 +144,7 @@ class Node(object):
     @property
     def from_way(self):
         """ Returns ID of the way from whence this node came,
-        given that it has been assigned a parent node. 
+        given that it has been assigned a parent node.
         """
         if self.shared_edge:
             return self.shared_edge.way_id
