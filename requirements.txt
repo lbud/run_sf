@@ -1,11 +1,11 @@
 Flask==0.10.1
-GeoAlchemy2==0.2.3
-Jinja2==2.7.1
-SQLAlchemy==0.8.3
+GeoAlchemy2==0.2.4
+Jinja2==2.7.2
+SQLAlchemy==0.9.4
 Tempita==0.5.2
 decorator==3.4.0
-geopy==0.98.3
-pbr==0.7.0
-psycopg2==2.5.1
+geopy==0.99
+pbr==0.8.0
+psycopg2==2.5.2
 uWSGI==2.0.3
 wsgiref==0.1.2
