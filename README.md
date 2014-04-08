@@ -12,11 +12,11 @@ View online at [run.laurenbudorick.com](http://run.laurenbudorick.com).
 * Deployed using DigitalOcean 
 
 ## Modified A\* Algorithm
-<p>I started my pathfinding algorithm by implementing A\* in its classic incarnation, so that it could simply find a path from A to B. In A\*, a node that may be along a path is scored using</p>
+<p>I started my pathfinding algorithm by implementing A* in its classic incarnation, so that it could simply find a path from A to B. In A*, a node that may be along a path is scored using</p>
 <pre>f(n) = g(n) + h(n)</pre>
 <p>where g(n) is the cost to arrive at a node from the start, and h(n) is the estimated heuristic cost from a node to the end.</p>
 Once I understood that, I added elevation data so that elevation changes were proportionally more costly, so that whereas before, for example, a route from Van Ness and Lombard to Green Street at the Embarcadero was going over Russian Hill and Telegraph Hill, but now it was avoiding the hills and routing north around (Bay Street). Essentially at this point my A\* score function was
-<pre>f(n) = g(n) + h(n) + elevation\_weight</pre>
+<pre>f(n) = g(n) + h(n) + elevation_weight</pre>
 
 <p>My problem then was that A* works to find routes from A to B, but I wanted to find routes from A to A with an X-mile detour.</p>
 
