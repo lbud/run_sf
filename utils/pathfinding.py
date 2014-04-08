@@ -19,7 +19,7 @@ def find_route(start, route_distance):
     total_route_distance = route_distance
 
     # Explore out from starting point.
-    first_distance = float(route_distance) * .38
+    first_distance = float(route_distance) * .35
     first_leg = a_star(start_node, None, first_distance, explore_score_fn)
     first_end = first_leg.get('path')[-1]
     # print [(p.id, p.lat, p.lon) for p in first_leg.get('path')]
