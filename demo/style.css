@@ -181,21 +181,21 @@ button:active {
 /* spinner -- 100% thanks to this guy http://tympanus.net/codrops/2012/11/14/creative-css-loading-animations */
 #loader {
   width: 400px;
-  height: 135px;
+  height: 400px;
   z-index: 1000000;
   display: none;
 }
 .spinner {
   /*display: none;*/
   font-size: 100px;
-  width: 1em;
-  height: 1em;
+  width: 4em;
+  height: 4em;
   list-style: none;
   border-radius: 50%;
   border: .01em solid rgba(175,175,175,.1);
   padding: 0px;
   margin: auto;
-  position: relative;
+  position: absolute;
 }
 .spinner li {
   width: .2em;
@@ -208,104 +208,104 @@ button:active {
     left: 50%;
     top: 0;
     margin: 0 0 0 -.1em;
-    background: #ffbb00;
-    -webkit-transform-origin: 50% 250%;
-    -moz-transform-origin: 50% 250%;
-    -ms-transform-origin: 50% 250%;
-    -o-transform-origin: 50% 250%;
-    transform-origin: 50% 250%;
+    background: #fff; /* #ffbb00 */
+    -webkit-transform-origin: 50% 1000%;
+    -moz-transform-origin: 50% 1000%;
+    -ms-transform-origin: 50% 1000%;
+    -o-transform-origin: 50% 1000%;
+    transform-origin: 50% 1000%;
     -webkit-animation: 
-        rota 1.13s linear infinite,
+        rota 2.5s linear infinite,
         opa 3.67s ease-in-out infinite alternate;
     -moz-animation: 
-        rota 1.13s linear infinite,
+        rota 2.5s linear infinite,
         opa 3.67s ease-in-out infinite alternate;
     -ms-animation: 
-        rota 1.13s linear infinite,
+        rota 2.5s linear infinite,
         opa 3.67s ease-in-out infinite alternate;
     -o-animation: 
-        rota 1.13s linear infinite,
+        rota 2.5s linear infinite,
         opa 3.67s ease-in-out infinite alternate;
     animation: 
-        rota 1.13s linear infinite,
+        rota 2.5s linear infinite,
         opa 3.67s ease-in-out infinite alternate;
 }
 .spinner li:nth-child(2) {
     top: 50%; 
     right: 0;
     margin: -.1em 0 0 0;
-    background: #0066ff;
-    -webkit-transform-origin: -150% 50%;
-    -moz-transform-origin: -150% 50%;
-    -ms-transform-origin: -150% 50%;
-    -o-transform-origin: -150% 50%;
-    transform-origin: -150% 50%;
+    background: #fff; /* #0066ff */
+    -webkit-transform-origin: -900% 50%;
+    -moz-transform-origin: -900% 50%;
+    -ms-transform-origin: -900% 50%;
+    -o-transform-origin: -900% 50%;
+    transform-origin: -900% 50%;
     -webkit-animation: 
-        rota 1.86s linear infinite,
+        rota 4s linear infinite,
         opa 4.29s ease-in-out infinite alternate;
     -moz-animation: 
-        rota 1.86s linear infinite,
+        rota 4s linear infinite,
         opa 4.29s ease-in-out infinite alternate;
     -ms-animation: 
-        rota 1.86s linear infinite,
+        rota 4s linear infinite,
         opa 4.29s ease-in-out infinite alternate;
     -o-animation: 
-        rota 1.86s linear infinite,
+        rota 4s linear infinite,
         opa 4.29s ease-in-out infinite alternate;
     animation: 
-        rota 1.86s linear infinite,
+        rota 4s linear infinite,
         opa 4.29s ease-in-out infinite alternate;
 }
 .spinner li:nth-child(3) {
     left: 50%; 
     bottom: 0;
     margin: 0 0 0 -.1em;
-    background: #00FF65;
-    -webkit-transform-origin: 50% -150%;
-    -moz-transform-origin: 50% -150%;
-    -ms-transform-origin: 50% -150%;
-    -o-transform-origin: 50% -150%;
-    transform-origin: 50% -150%;
+    background: #fff; /* #00FF65 */
+    -webkit-transform-origin: 50% -900%;
+    -moz-transform-origin: 50% -900%;
+    -ms-transform-origin: 50% -900%;
+    -o-transform-origin: 50% -900%;
+    transform-origin: 50% -900%;
     -webkit-animation: 
-        rota 1.45s linear infinite,
+        rota 4.25s linear infinite,
         opa 5.12s ease-in-out infinite alternate;
     -moz-animation: 
-        rota 1.45s linear infinite,
+        rota 4.25s linear infinite,
         opa 5.12s ease-in-out infinite alternate;
     -ms-animation: 
-        rota 1.45s linear infinite,
+        rota 4.25s linear infinite,
         opa 5.12s ease-in-out infinite alternate;
     -o-animation: 
-        rota 1.45s linear infinite,
+        rota 4.25s linear infinite,
         opa 5.12s ease-in-out infinite alternate;
     animation: 
-        rota 1.45s linear infinite,
+        rota 4.25s linear infinite,
         opa 5.12s ease-in-out infinite alternate;
 }
 .spinner li:nth-child(4) {
     top: 50%; 
     left 0;
     margin: -.1em 0 0 0;
-    background: #FF00B5;
-    -webkit-transform-origin: 250% 50%;
-    -moz-transform-origin: 250% 50%;
-    -ms-transform-origin: 250% 50%;
-    -o-transform-origin: 250% 50%;
-    transform-origin: 250% 50%;
+    background: #fff; /* #FF00B5 */
+    -webkit-transform-origin: 1000% 50%;
+    -moz-transform-origin: 1000% 50%;
+    -ms-transform-origin: 1000% 50%;
+    -o-transform-origin: 1000% 50%;
+    transform-origin: 1000% 50%;
     -webkit-animation: 
-        rota 1.72s linear infinite,
+        rota 3.72s linear infinite,
         opa 5.25s ease-in-out infinite alternate;
     -moz-animation: 
-        rota 1.72s linear infinite,
+        rota 3.72s linear infinite,
         opa 5.25s ease-in-out infinite alternate;
     -ms-animation: 
-        rota 1.72s linear infinite,
+        rota 3.72s linear infinite,
         opa 5.25s ease-in-out infinite alternate;
     -o-animation: 
-        rota 1.72s linear infinite,
+        rota 3.72s linear infinite,
         opa 5.25s ease-in-out infinite alternate;
     animation: 
-        rota 1.72s linear infinite,
+        rota 3.72s linear infinite,
         opa 5.25s ease-in-out infinite alternate;
 }
 
@@ -400,7 +400,29 @@ button:active {
 }
 
 #message {
+  padding-top: 167px;
   text-align: center;
   color: rgba(255,255,255,.93);
   font-size: 20px;
+}
+
+#reset {
+  background-color: rgba(177,177,177, .5);
+  border-radius: 50%;
+  height: 40px;
+  width: 40px;
+  color: #656565;
+  position: fixed;
+  text-align: center;
+  bottom: 20px;
+  right: 20px;
+  z-index: 950;
+  display: none;
+  font-size: 2.5em;
+  line-height: .75em;
+  text-decoration: none;
+}
+
+#reset:hover {
+  color: #fff;
 }
