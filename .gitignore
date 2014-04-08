@@ -1,10 +1,12 @@
 build/
 env/
 etc/
+demo/basemap.js
+demo/colors.txt
+demo/jquery.js
 *.db
 *.pyc
 .env
-demo/
 *.dump
 utils/rawdata/
 *.tgz

@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>test</title>
+        <title>runSF</title>
         <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
         <meta charset="utf-8">
-        <link rel="stylesheet" type="text/css" href="style.css">
+        <link rel="stylesheet" type="text/css" href="../static/css/style.css">
         <link href="http://fonts.googleapis.com/css?family=Oxygen:300,400,700" rel="stylesheet" type="text/css">
     </head>
     <body>
@@ -15,9 +15,9 @@
                 <div id="title">
                     <h1>run sf</h1>
                     <h2>run smarter, not harder</h2>
-                    <div id="logo"><img src="logo.png"></div>
                 </div>
-                <label>start:</label><input type="text" class="formfield" placeholder="starting address" name="start" id="start">
+                <div id="logo"><img src="logo.png"></div>
+                <label>start:</label><input type="text" class="formfield" placeholder="starting address" name="start" id="address">
                 <div class="subtext">san francisco, ca</div>
                 <label>distance:</label><input type="text" class="formfield" placeholder="" name="end" id="distance"><span class="small">miles</span>
                 <input type="text" name="lat" id="lat">
@@ -34,18 +34,93 @@
             </ul>
             <div id="message">
                 <p id="msg">please wait while we find you a route...</p>
-<!--                 <p id="msg2">go tie your shoes and stretch or something!</p>
-                <p id="msg3">eat a few almonds while you wait.</p> -->
             </div>
         </div>
+        <div id="reset">&larr;</div>
         <script src="https://code.jquery.com/jquery.js"></script>
         <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
         <script src="maps_render.js"></script>
         <script>
-        $('#go').click(function() {
-            $('#formwrapper').remove();
-            $('#loader').css('display','block');
-        });
+            var messages=[
+                "go tie your shoes and stretch or something!",
+                "how's the weather out today?",
+                "hang tight, still working on it...",
+                "reticulating splines...",
+                "betcha i can make this route faster than you can run it."]
+            function replaceMessage(msgs) {
+                var i = Math.floor(Math.random() * msgs.length);
+                $('#msg').html(msgs[i]);
+            }
+            // var geocoder = new google.maps.Geocoder();
+            // var lat;
+            // var lon;
+            // function drawRoute() {
+            //     // geocode address
+            //     var address = document.getElementById("address").value;
+            //     var southWest = new google.maps.LatLng(37.705295, -122.512788);
+            //     var northEast = new google.maps.LatLng(37.811928, -122.360649);
+            //     var bounds = new google.maps.LatLngBounds(southWest, northEast);
+            //     geocoder.geocode( { "address": address, "bounds": bounds }, function(results, status) {
+            //     if (status == google.maps.GeocoderStatus.OK) {
+            //         lat = results[0].geometry.location.k;
+            //         lon = results[0].geometry.location.A;
+            //         var distance = document.getElementById("distance").value;
+            //         // post start + distance to flask app
+            //         $.post( "/", {lat: lat, lon: lon, distance: distance}).done(function(data){
+            //             route = JSON.parse(data);
+            //             $('#loader').fadeOut();
+            //             $('#overlay').fadeOut();
+            //             $('#reset').fadeIn();
+            //             render(route.coords);
+            //         });
+
+            //     } else {
+            //         alert("Geocode was not successful for the following reason: " + status);
+            //     }
+            //     });
+            // }
+            function resetForm() {
+                // Resets input form upon clicking reset button. Doesn't yet clear 
+                //   rendered route just in case user presses ESC to view again.
+                $('#overlay').fadeIn();
+                $('#title').css('visibility','hidden');
+                document.getElementById('address').value='';
+                document.getElementById('distance').value='';
+                $('#formwrapper').fadeIn();
+            }
+
+            function loadScreen() {
+                $('#formwrapper').fadeOut(40);            
+                $('#loader').fadeIn(40);
+                window.setInterval(function(){
+                    replaceMessage(messages);
+                },8000);                
+            }
+
+            function renderRoute() {
+                $('#loader').fadeOut();
+                $('#overlay').fadeOut();
+                $('#reset').fadeIn();
+                render();
+            }
+
+            $('#go').click(function() {
+                loadScreen();
+                window.setTimeout(renderRoute, 3000);
+            });
+            $('#reset').click(function() {
+                resetForm();
+                $(document).on('keyup.escape', function(e) {
+                    if (e.keyCode == 27) {
+                        $('#overlay').fadeOut();
+                        $('#formwrapper').fadeOut();
+                    }
+                });
+                $('#go').click(function() {
+                    clearRoute();
+                    $(document).unbind('keyup.escape');
+                });
+            });
         </script>
     </body>
 </html>

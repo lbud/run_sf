@@ -1,4 +1,4 @@
-var latlng = new google.maps.LatLng(37.773102, -122.441806)
+var latlng = new google.maps.LatLng(37.780278, -122.414060)
 var mapStyle = [
     {"featureType": "water","elementType": "geometry","stylers": [{ "hue": "#0066ff" },{ "lightness": -20 },{ "saturation": -33 },{ "gamma": 0.77 }]},
     {"featureType": "water","elementType": "labels","stylers": [{ "visibility": "off" }]},
@@ -23,132 +23,109 @@ var mapOptions = {
 var map = new google.maps.Map(document.getElementById("map-canvas"),
     mapOptions);
 
-
+var routeLine = null;
+var startMarker = null;
 
 function render() {
 
-    var rendererOptions = {
-        map: map,
-        suppressMarkers: true,
-        polylineOptions: {
-            strokeColor: "#ff620c",
-            strokeWeight: 7,
-            strokeOpacity: .75
-        }
-    };
-    directionsDisplay = new google.maps.DirectionsRenderer(rendererOptions);
-
-    directionsService = new google.maps.DirectionsService();
-
-    var stops = [
-        [37.7863283,-122.4238018],[37.7867987,-122.423294],[37.786402,-122.423214],
-        [37.786572,-122.4218983],[37.7864219,-122.4218679],[37.7864419,-122.4216218],
-        [37.7856765,-122.421461],[37.7856935,-122.421299],[37.7858929,-122.4197394],
-        [37.786101,-122.418088],[37.78631,-122.416449],[37.7873727,-122.4082344],
-        [37.7874281,-122.4077864],[37.7880296,-122.4029869],[37.7887064,-122.4021289],
-        [37.788802,-122.4020077],[37.788917,-122.4018637],[37.7892837,-122.4013982],
-        [37.7900886,-122.4003797],[37.7903123,-122.4000967],[37.7904358,-122.3999404],
-        [37.7907272,-122.3995716],[37.7909293,-122.3993159],[37.7910505,-122.3991626],
-        [37.7911461,-122.3990417],[37.791734,-122.3982976],[37.7924404,-122.3974037],
-        [37.7932253,-122.3964255],[37.793682,-122.3963495],[37.7937147,-122.3963557],
-        [37.7945926,-122.3965434],[37.7950147,-122.3966117],[37.7963968,-122.3969087],
-        [37.7966013,-122.3970214],[37.7972473,-122.3971377],[37.7972393,-122.3971986],
-        [37.7980652,-122.3974012],[37.7984895,-122.3974408],[37.7987933,-122.3974523],
-        [37.7990692,-122.3976911],[37.7991637,-122.3977719],[37.7992737,-122.3978694],
-        [37.80084,-122.3992534],[37.8009925,-122.3990496]
+    var stops = [[37.788861, -122.41158459999997], [37.788808, -122.411886], 
+        [37.788924, -122.410967], [37.7890141, -122.410257], 
+        [37.7885486, -122.4101645], [37.7880801, -122.4100713], 
+        [37.7874277, -122.4099416], [37.7871475, -122.4098859], 
+        [37.78667, -122.4097895], [37.7865096, -122.4097581], 
+        [37.7862181, -122.4097011], [37.7852809, -122.4095147], 
+        [37.7843568, -122.409331], [37.7844365, -122.4087108], 
+        [37.7844381, -122.408699], [37.784463, -122.4085315], 
+        [37.7840895, -122.4082082], [37.7843161, -122.4084769], 
+        [37.7843338, -122.4084937], [37.7843853, -122.4085165], 
+        [37.7839993, -122.4080907], [37.7835213, -122.4074948], 
+        [37.7832877, -122.4071995], [37.7831569, -122.4070353], 
+        [37.7827293, -122.4064956], [37.7823053, -122.4059611], 
+        [37.7819275, -122.4054874], [37.7814932, -122.4049417], 
+        [37.7808758, -122.4057232], [37.7797361, -122.4071627], 
+        [37.7793122, -122.4066316], [37.7789407, -122.406166], 
+        [37.7785107, -122.4056272], [37.7781618, -122.4060691], 
+        [37.776931, -122.4045223], [37.7772779, -122.4040826], 
+        [37.7767255, -122.4033895], [37.7760452, -122.4025378], 
+        [37.7748144, -122.4009956], [37.7749092, -122.4008758], 
+        [37.7748356, -122.4007198], [37.7744948, -122.4002909], 
+        [37.7744488, -122.400349], [37.7743154, -122.4001794], 
+        [37.7742804, -122.4001293], [37.7748305, -122.3994256], 
+        [37.7759585, -122.3979976], [37.7753451, -122.3972279], 
+        [37.7736238, -122.3994179], [37.7718661, -122.4015675], 
+        [37.7721757, -122.4012433], [37.7722326, -122.4011825], 
+        [37.7722916, -122.4011129], [37.7717998, -122.4016452], 
+        [37.7700872, -122.4038348], [37.7701197, -122.4038074], 
+        [37.7700509, -122.4038573], [37.770057, -122.4038988], 
+        [37.7700555, -122.4039397], [37.7710296, -122.4051368], 
+        [37.7709299, -122.4050084], [37.7701331, -122.4040149], 
+        [37.7700966, -122.4039753], [37.7712739, -122.4054769], 
+        [37.7706296, -122.4063127], [37.77007, -122.4069977], 
+        [37.7695306, -122.4076423], [37.7704872, -122.4087495], 
+        [37.7703448, -122.4086722], [37.7708243, -122.4091395], 
+        [37.7720599, -122.410688], [37.7715867, -122.4112871], 
+        [37.772073, -122.411897], [37.7728201, -122.4128343], 
+        [37.77356, -122.413763], [37.774043, -122.414368], 
+        [37.7744848, -122.4149212], [37.7748526, -122.4153843], 
+        [37.7752773, -122.415917], [37.7756937, -122.4164554], 
+        [37.775766, -122.4165239], [37.776716, -122.4153236], 
+        [37.7770472, -122.415742], [37.7774969, -122.4163119], 
+        [37.7775701, -122.4163507], [37.7776511, -122.4163809], 
+        [37.777723, -122.416401], [37.7786552, -122.4165794], 
+        [37.7786315, -122.4167642], [37.778444, -122.4182296], 
+        [37.7793889, -122.4184192], [37.7801291, -122.4185677], 
+        [37.7802725, -122.4186003], [37.7803918, -122.41863], 
+        [37.7807733, -122.4187069], [37.781237, -122.4188004], 
+        [37.7817058, -122.418895], [37.7821696, -122.4189885], 
+        [37.7830967, -122.4191755], [37.7835683, -122.4192706], 
+        [37.7840291, -122.4193635], [37.784236, -122.417707], 
+        [37.78471, -122.417806], [37.7851734, -122.4179023], 
+        [37.785642, -122.417996], [37.786101, -122.418088], 
+        [37.7858929, -122.4197394], [37.7863848, -122.4198365], 
+        [37.7868291, -122.4199282], [37.7870394, -122.4182713], 
+        [37.787202, -122.4169902], [37.7872465, -122.4166393], 
+        [37.7874552, -122.4149952], [37.7876635, -122.4133539], 
+        [37.7877436, -122.412723], [37.7877665, -122.4125426], 
+        [37.787793, -122.4123333], [37.7878735, -122.4116993], 
+        [37.7881515, -122.4117557], [37.78848, -122.411819], 
+        [37.788808, -122.411886], [37.788861, -122.41158459999997]
     ];
+    console.log(stops);
 
-    var batches = [];
-    var itemsPerBatch = 10; // google API max - 1 start, 1 stop, and 8 waypoints
-    var itemsCounter = 0;
-    var wayptsExist = stops.length > 0;
-     
-    while (wayptsExist) {
-        var subBatch = [];
-        var subitemsCounter = 0;
-     
-        for (var j = itemsCounter; j < stops.length; j++) {
-            subitemsCounter++;
-            subBatch.push({
-                location: new window.google.maps.LatLng(stops[j][0], stops[j][1]),
-                stopover: false
-            });
-            if (subitemsCounter == itemsPerBatch)
-                break;
-        }
-     
-        itemsCounter += subitemsCounter;
-        batches.push(subBatch);
-        wayptsExist = itemsCounter < stops.length;
-        // If it runs again there are still points. Minus 1 before continuing to 
-        // start up with end of previous tour leg
-        itemsCounter--;
+    var nodeList = [];
+    
+    for (var j = 0; j < stops.length; j++) {
+        point = new window.google.maps.LatLng(stops[j][0], stops[j][1]);
+        nodeList.push(point);
     }
 
+    routeLine = new google.maps.Polyline({
+        path: nodeList,
+        strokeColor: "#ff620c",
+        strokeWeight: 7,
+        strokeOpacity: .75 
+    });
 
-    // function calcRoute(batches, directionsService, directionsDisplay) { 
-    var combinedResults;
-    var unsortedResults = [{}]; // to hold the counter and the results themselves as they come back, to later sort
-    var directionsResultsReturned = 0;
-     
-    for (var k = 0; k < batches.length; k++) {
-        var lastIndex = batches[k].length - 1;
-        var start = batches[k][0].location;
-        var end = batches[k][lastIndex].location;
-         
-        // trim first and last entry from array
-        var waypts = [];
-        waypts = batches[k];
-        waypts.splice(0, 1);
-        waypts.splice(waypts.length - 1, 1);
-         
-        var request = {
-            origin : start,
-            destination : end,
-            waypoints : waypts,
-            travelMode : window.google.maps.TravelMode.WALKING
-        };
-        (function (kk) {
-            directionsService.route(request, function (result, status) {
-                if (status == window.google.maps.DirectionsStatus.OK) {
-                     
-                    var unsortedResult = {
-                        order : kk,
-                        result : result
-                    };
-                    unsortedResults.push(unsortedResult);
-                     
-                    directionsResultsReturned++;
+    startMarker = new google.maps.Marker({
+        position: new window.google.maps.LatLng(stops[0][0], stops[0][1]),
+        map: map
+    });
 
-                    if (directionsResultsReturned == batches.length || directionsResultsReturned == 10) // we've received all the results. put to map
-                    {
-                        // sort the returned values into their correct order
-                        unsortedResults.sort(function (a, b) {
-                            return parseFloat(a.order) - parseFloat(b.order);
-                        });
-                        var count = 0;
-                        for (var key in unsortedResults) {
-                            if (unsortedResults[key].result != null) {
-                                if (unsortedResults.hasOwnProperty(key)) {
-                                    if (count == 0) // first results. new up the combinedResults object
-                                        combinedResults = unsortedResults[key].result;
-                                    else {
-                                        // only building up legs, overview_path, and bounds in my consolidated object. This is not a complete
-                                        // directionResults object, but enough to draw a path on the map, which is all I need
-                                        combinedResults.routes[0].legs = combinedResults.routes[0].legs.concat(unsortedResults[key].result.routes[0].legs);
-                                        combinedResults.routes[0].overview_path = combinedResults.routes[0].overview_path.concat(unsortedResults[key].result.routes[0].overview_path);
-                                         
-                                        combinedResults.routes[0].bounds = combinedResults.routes[0].bounds.extend(unsortedResults[key].result.routes[0].bounds.getNorthEast());
-                                        combinedResults.routes[0].bounds = combinedResults.routes[0].bounds.extend(unsortedResults[key].result.routes[0].bounds.getSouthWest());
-                                    }
-                                    count++;
-                                }
-                            }
-                        }
-                        directionsDisplay.setDirections(combinedResults);
-                    }
-                }
-            });
-        })(k);
+    var bounds = new google.maps.LatLngBounds();
+    for (var i = 0; i < nodeList.length; i++) {
+        bounds.extend(nodeList[i]);
     }
-};
+
+    routeLine.setMap(map);
+    map.fitBounds(bounds);
+
+}
+
+
+function clearRoute() {
+    // clears route and marker if user clicks to get a new route without refreshing page
+
+    routeLine.setMap(null);
+    startMarker.setMap(null);
+
+}
