@@ -1,7 +1,6 @@
 # Run SF
 
-An app to generate flat running routes in San Francisco.  
-View online at [run.laurenbudorick.com](http://run.laurenbudorick.com).
+An app to generate flat running routes in San Francisco.
 
 
 ## Overview
@@ -126,5 +125,11 @@ using the DirectionsService API.
 I also plan to continue tweaking the score functions to perfect the wayfinding
 algorithm.
 
+## Deployment
+
+Run SF will soon be deployed. In the meantime, a front-end demo with a single
+route hard-coded in is available in the [/demo][demo] directory.
+
 
 [A\*]: http://en.wikipedia.org/wiki/A*_search_algorithm
+[demo]: https://github.com/lbud/run_sf/tree/master/demo
