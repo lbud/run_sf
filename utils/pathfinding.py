@@ -29,6 +29,8 @@ def find_route(start, route_distance):
 
     # Explore back, avoiding path already taken.
     return_leg = a_star(first_end, start_node, None, return_score_fn)
+    # return_leg = a_star(first_end, None, 0, explore_score_fn)
+
     # for p in return_leg.get('path'):
     #     print (p.lat, p.lon)
 
@@ -48,7 +50,10 @@ def explore_score_fn(start, end, current, route_distance):
     assigning lower costs to farther nodes (using inverse distance).
     """
 
-    climb_score = current.rel_climb*current.elev_diff
+    climb_score = abs(current.rel_climb+current.elev_diff)
+    print "\nclimb score", climb_score
+    print "= rel climb", current.rel_climb
+    print "* overall diff", current.elev_diff
     # TODO: Tweak scoring. Elevation-related options:
     # current.rel_climb
     # current.elev_diff
@@ -56,7 +61,10 @@ def explore_score_fn(start, end, current, route_distance):
     # current.grade
     # current.elev_diff
 
-    distance_score = 60000 * current.i_value(start) + 2*current.distance
+    distance_score = 20000 * current.i_value(start) + 2*current.distance
+    print "dist score", distance_score
+    print "= i val", current.i_value(start)
+    print "+ curr. dist", current.distance
     # TODO: Tweak scoring.
 
     # Try to make it not double back on the other side of a divided street
@@ -80,8 +88,8 @@ def make_loop_score_fn(path_to_avoid):
         """
 
         # more traditional A* scoring coming back
-        score = 10 * abs(current.grade) + current.elev_diff + \
-            20 * current.distance + 20 * current.h_value(end)
+        score = abs(current.rel_climb + current.elev_diff) + \
+            current.distance + 10 * current.h_value(end)
         # TODO: Tweak scoring. Options:
         # current.grade
         # current.elev_diff
@@ -128,6 +136,10 @@ def a_star(start, end, route_distance, score_fn):
     """
 
     global total_route_distance
+    if end is None:
+        endpoint = start
+    else:
+        endpoint = end
 
     open_set = set()
     closed_set = set()
@@ -159,30 +171,31 @@ def a_star(start, end, route_distance, score_fn):
             return route_info
 
         for neighbor in current.ends:
-            neighbor.parent = current
-            if end:    # for return route
-                neighbor.elev_diff = abs(neighbor.elev - end.elev)
-            else:    # for exploring out
-                neighbor.elev_diff = abs(neighbor.elev - start.elev)
+            if dist(neighbor, endpoint) < (total_route_distance / 2):
+                neighbor.parent = current
+                if end:    # for return route
+                    neighbor.elev_diff = abs(neighbor.elev - end.elev)
+                else:    # for exploring out
+                    neighbor.elev_diff = abs(neighbor.elev - start.elev)
 
-            # Assigns score to node based on given score function
-            score = score_fn(start, end, neighbor, route_distance)
+                # Assigns score to node based on given score function
+                score = score_fn(start, end, neighbor, route_distance)
 
-            if neighbor.is_in(closed_set):
-                continue
+                if neighbor.is_in(closed_set):
+                    continue
 
-            # Removes from open set to be replaced if new score to node is
-            # better than that already found.
-            found = None
-            for n in open_set:
-                if n.id == neighbor.id:
-                    if score < n.score:
-                        found = n
-            if found:
-                open_set.remove(found)
+                # Removes from open set to be replaced if new score to node is
+                # better than that already found.
+                found = None
+                for n in open_set:
+                    if n.id == neighbor.id:
+                        if score < n.score:
+                            found = n
+                if found:
+                    open_set.remove(found)
 
-            # Adds neighbor nodes (if not already searched) to open set.
-            if not neighbor.is_in(open_set) and not neighbor.is_in(closed_set):
-                neighbor.score = score
-                open_set.add(neighbor)
+                # Adds neighbor nodes (if not already searched) to open set.
+                if not neighbor.is_in(open_set) and not neighbor.is_in(closed_set):
+                    neighbor.score = score
+                    open_set.add(neighbor)
     return None
