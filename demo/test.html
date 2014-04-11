@@ -4,7 +4,7 @@
         <title>runSF</title>
         <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
         <meta charset="utf-8">
-        <link rel="stylesheet" type="text/css" href="../static/css/style.css">
+        <link rel="stylesheet" type="text/css" href="style.css">
         <link href="http://fonts.googleapis.com/css?family=Oxygen:300,400,700" rel="stylesheet" type="text/css">
     </head>
     <body>
@@ -25,6 +25,9 @@
                 <button id="go">find route ></button>
             </div>
         </div>
+        <div class="centered" id="aboutmodal">
+            <h1></h1>
+        </div>
         <div class="centered" id="loader">
             <ul class="spinner">
                 <li></li>
@@ -37,6 +40,7 @@
             </div>
         </div>
         <div id="reset">&larr;</div>
+        <div id="about">?</div>
         <script src="https://code.jquery.com/jquery.js"></script>
         <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
         <script src="maps_render.js"></script>
@@ -101,6 +105,7 @@
                 $('#loader').fadeOut();
                 $('#overlay').fadeOut();
                 $('#reset').fadeIn();
+                $('#about').fadeIn();                
                 render();
             }
 
