@@ -17,10 +17,11 @@ def find():
     data = request.form
     distance = float(data.get('distance'))
     start_loc = (float(data.get('lat')), float(data.get('lon')))
+    route_type = data.get('routeType')
     print(start_loc)
     print(distance)
 
-    rt = models.Route(start_loc, distance)
+    rt = models.Route(start_loc, distance, route_type)
     route = rt.render
 
     # Print street names, elevation gain, and distance

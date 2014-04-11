@@ -105,6 +105,14 @@ label {
   font-weight: 300;
 }
 
+.buttons {
+  position: relative;
+  width: 100%;
+  margin: auto;
+  float: left;
+  clear: none;
+}
+
 button {
   position: relative;
   text-transform: uppercase;
@@ -114,16 +122,26 @@ button {
   height: 2.5em;
   background-color: #0066ff;
   border: 0px solid;
-  border-radius: 5px;
   box-shadow: 0px 4px rgba(0,40,100,.8);
   color: #fff;
-  padding: 10px 30px;
+  padding: 10px 20px;
   margin: 10px auto;
-  display: block;
+  display: inline;
+  clear: none;
+  width: 49%;
   position: relative;
   -webkit-transition: background-color ease-in-out .08s;
   -o-transition: background-color ease-in-out .08s;
   transition: background-color ease-in-out .08s;
+}
+
+button:first-child {
+  margin-left: 1px;
+  border-radius: 5px 0px 0px 5px;
+}
+
+button:last-child {
+  border-radius: 0px 5px 5px 0px;
 }
 
 button:hover {
@@ -406,7 +424,7 @@ button:active {
   font-size: 20px;
 }
 
-#reset {
+#reset, #about {
   background-color: rgba(177,177,177, .5);
   border-radius: 50%;
   height: 40px;
@@ -414,8 +432,6 @@ button:active {
   color: #656565;
   position: fixed;
   text-align: center;
-  bottom: 20px;
-  right: 20px;
   z-index: 950;
   display: none;
   font-size: 2.5em;
@@ -423,6 +439,32 @@ button:active {
   text-decoration: none;
 }
 
-#reset:hover {
+#reset:hover, #about:hover {
   color: #fff;
+}
+
+#reset {
+  bottom: 20px;
+  right: 20px;
+}
+
+#about {
+  bottom: 60px;
+  right: 20px;
+}
+
+#aboutmodal {
+  z-index: 100000;
+  display: block;
+  /*background-color: #f7f7f7;*/
+  width: 350px;
+  height: 200px;
+  border-radius: 7px;
+  box-shadow: 0px 8px 6px 1px #333;
+  padding: 10px;
+  top: 50px;
+  background-image: -moz-radial-gradient(50% 10px, circle closest-corner, rgba(0, 0, 0, 0) 0, rgba(0, 0, 0, 0) 30px, transparent 31px, #f7f7f7 32px);
+  background-image: -webkit-radial-gradient(50% 10px, circle closest-corner, rgba(0, 0, 0, 0) 0, rgba(0, 0, 0, 0) 30px, transparent 31px, #f7f7f7 32px);
+  background-image: -ms-radial-gradient(50% 10px, circle closest-corner, rgba(0, 0, 0, 0) 0, rgba(0, 0, 0, 0) 30px, transparent 31px, #f7f7f7 32px);
+  background-image: -o-radial-gradient(50% 10px, circle closest-corner, rgba(0, 0, 0, 0) 0, rgba(0, 0, 0, 0) 30px, transparent 31px, #f7f7f7 32px);
 }

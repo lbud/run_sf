@@ -22,7 +22,10 @@
                 <label>distance:</label><input type="text" class="formfield" placeholder="" name="end" id="distance"><span class="small">miles</span>
                 <input type="text" name="lat" id="lat">
                 <input type="text" name="lon" id="lon">        
-                <button id="go">find route ></button>
+                <div class="buttons">
+                    <button id="loop">loop route ></button>
+                    <button id="outandback">out-and-back ></button>
+                </div>
             </div>
         </div>
         <div class="centered" id="loader">
@@ -54,7 +57,7 @@
             var geocoder = new google.maps.Geocoder();
             var lat;
             var lon;
-            function drawRoute() {
+            function drawRoute(routeType) {
                 // geocode address
                 var address = document.getElementById("address").value;
                 var southWest = new google.maps.LatLng(37.705295, -122.512788);
@@ -66,7 +69,7 @@
                     lon = results[0].geometry.location.A;
                     var distance = document.getElementById("distance").value;
                     // post start + distance to flask app
-                    $.post( "/", {lat: lat, lon: lon, distance: distance}).done(function(data){
+                    $.post( "/", {lat: lat, lon: lon, distance: distance, routeType: routeType}).done(function(data){
                         route = JSON.parse(data);
                         $('#loader').fadeOut();
                         $('#overlay').fadeOut();
@@ -89,16 +92,26 @@
                 $('#formwrapper').fadeIn();
             }
 
-            $('#go').click(function() {
+            $('#loop').click(function() {
                 // Sends pathfinding request;
                 // displays loader with distracting messages while waiting.
-                drawRoute();
+                drawRoute('loop');
                 $('#formwrapper').fadeOut(40);            
                 $('#loader').fadeIn(40);
                 window.setInterval(function(){
                     replaceMessage(messages);
                 },8000);
             });
+
+            $('#outandback').click(function() {
+                drawRoute('outandback');
+                $('#formwrapper').fadeOut(40);            
+                $('#loader').fadeIn(40);
+                window.setInterval(function(){
+                    replaceMessage(messages);
+                },8000);
+            });
+
             $('#reset').click(function() {
                 resetForm();
                 $(document).on('keyup.escape', function(e) {
