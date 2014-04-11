@@ -1,6 +1,6 @@
 build/
 env/
-etc/
+ignore/
 demo/basemap.js
 demo/colors.txt
 demo/jquery.js
