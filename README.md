@@ -142,7 +142,7 @@ route hard-coded in is available in the [/demo][demo] directory.
 
 [A\*]: http://en.wikipedia.org/wiki/A*_search_algorithm
 [demo]: https://github.com/lbud/run_sf/tree/master/demo
-[screen_1]: https://github.com/lbud/run_sf/tree/master/etc/screen_1.png
-[screen_2]: https://github.com/lbud/run_sf/tree/master/etc/screen_2.png
-[screen_3]: https://github.com/lbud/run_sf/tree/master/etc/screen_3.png
-[screen_4]: https://github.com/lbud/run_sf/tree/master/etc/screen_4.png
+[screen_1]: https://github.com/lbud/run_sf/blob/master/etc/screen_1.png
+[screen_2]: https://github.com/lbud/run_sf/blob/master/etc/screen_2.png
+[screen_3]: https://github.com/lbud/run_sf/blob/master/etc/screen_3.png
+[screen_4]: https://github.com/lbud/run_sf/blob/master/etc/screen_4.png
