@@ -37,7 +37,6 @@
             </div>
         </div>
         <div id="reset">&larr;</div>
-        <div id="about">?</div>
         <script src="https://code.jquery.com/jquery.js"></script>
         <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
         <script src="maps_render.js"></script>
@@ -48,38 +47,12 @@
                 "hang tight, still working on it...",
                 "reticulating splines...",
                 "betcha i can make this route faster than you can run it."]
+
             function replaceMessage(msgs) {
                 var i = Math.floor(Math.random() * msgs.length);
                 $('#msg').html(msgs[i]);
             }
-            // var geocoder = new google.maps.Geocoder();
-            // var lat;
-            // var lon;
-            // function drawRoute() {
-            //     // geocode address
-            //     var address = document.getElementById("address").value;
-            //     var southWest = new google.maps.LatLng(37.705295, -122.512788);
-            //     var northEast = new google.maps.LatLng(37.811928, -122.360649);
-            //     var bounds = new google.maps.LatLngBounds(southWest, northEast);
-            //     geocoder.geocode( { "address": address, "bounds": bounds }, function(results, status) {
-            //     if (status == google.maps.GeocoderStatus.OK) {
-            //         lat = results[0].geometry.location.k;
-            //         lon = results[0].geometry.location.A;
-            //         var distance = document.getElementById("distance").value;
-            //         // post start + distance to flask app
-            //         $.post( "/", {lat: lat, lon: lon, distance: distance}).done(function(data){
-            //             route = JSON.parse(data);
-            //             $('#loader').fadeOut();
-            //             $('#overlay').fadeOut();
-            //             $('#reset').fadeIn();
-            //             render(route.coords);
-            //         });
 
-            //     } else {
-            //         alert("Geocode was not successful for the following reason: " + status);
-            //     }
-            //     });
-            // }
             function resetForm() {
                 // Resets input form upon clicking reset button. Doesn't yet clear 
                 //   rendered route just in case user presses ESC to view again.
@@ -102,7 +75,6 @@
                 $('#loader').fadeOut();
                 $('#overlay').fadeOut();
                 $('#reset').fadeIn();
-                $('#about').fadeIn();                
                 render();
             }
 
@@ -110,6 +82,7 @@
                 loadScreen();
                 window.setTimeout(renderRoute, 3000);
             });
+            
             $('#reset').click(function() {
                 resetForm();
                 $(document).on('keyup.escape', function(e) {
