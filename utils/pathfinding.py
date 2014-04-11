@@ -51,9 +51,6 @@ def explore_score_fn(start, end, current, route_distance):
     """
 
     climb_score = abs(current.rel_climb+current.elev_diff)
-    print "\nclimb score", climb_score
-    print "= rel climb", current.rel_climb
-    print "* overall diff", current.elev_diff
     # TODO: Tweak scoring. Elevation-related options:
     # current.rel_climb
     # current.elev_diff
@@ -62,9 +59,6 @@ def explore_score_fn(start, end, current, route_distance):
     # current.elev_diff
 
     distance_score = 20000 * current.i_value(start) + 2*current.distance
-    print "dist score", distance_score
-    print "= i val", current.i_value(start)
-    print "+ curr. dist", current.distance
     # TODO: Tweak scoring.
 
     # Try to make it not double back on the other side of a divided street
@@ -89,7 +83,7 @@ def make_loop_score_fn(path_to_avoid):
 
         # more traditional A* scoring coming back
         score = abs(current.rel_climb + current.elev_diff) + \
-            current.distance + 10 * current.h_value(end)
+            current.distance + current.h_value(end)
         # TODO: Tweak scoring. Options:
         # current.grade
         # current.elev_diff
