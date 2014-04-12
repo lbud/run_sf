@@ -19,7 +19,7 @@ def find_route(start, route_distance):
     total_route_distance = route_distance
 
     # Explore out from starting point.
-    first_distance = float(route_distance) * .35
+    first_distance = float(route_distance) * .33
     first_leg = a_star(start_node, None, first_distance, explore_score_fn)
     first_end = first_leg.get('path')[-1]
     # print [(p.id, p.lat, p.lon) for p in first_leg.get('path')]
@@ -118,7 +118,7 @@ def make_loop_score_fn(path_to_avoid):
         # Multiply score from avoiding by heuristic cost to the endpoint, so
         # that the closer it gets to the end, the closer it may get to the path
         # already taken.
-        return score + (10 * current.h_value(end) * score_from_avoiding)
+        return score + (9 * current.h_value(end) * score_from_avoiding)
 
     return actual_loop_score_fn
 
@@ -149,7 +149,7 @@ def a_star(start, end, route_distance, score_fn):
         open_set.remove(current)
 
         # End of this route leg:
-        if (end is not None and current.distance > (.95 * total_route_distance)
+        if (end is not None and current.distance > (.5 * total_route_distance)
                 and current.id == end.id) or \
                 (route_distance is not None and current.distance >
                  route_distance):
