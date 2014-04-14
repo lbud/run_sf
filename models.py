@@ -57,14 +57,16 @@ class Route(object):
 
     @property
     def render(self):
-        """ Returns a JSON object of coordinates, for rendering on a map.
+        """ Returns a JSON object of coordinates, for rendering on a map,
+        plus other relevant data.
         """
         start = [[self.start[0], self.start[1]]]
         coord_list = start + [
             [n.lat, n.lon] for n in self.full_node_path if n is not None
         ] + start
-        coords = json.dumps({"coords": [c for c in coord_list]})
-        return coords
+        data = json.dumps({"coords": [c for c in coord_list], \
+            "distance": round(self.distance, 2), "gain": round(self.gain, 2)})
+        return data
 
 
 class Node(object):

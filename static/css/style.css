@@ -1,7 +1,7 @@
 html, body, #map-canvas {
   height: 100%;
   margin: 0px;
-  padding: 0px
+  padding: 0px;
 }
 body {
   font-family: Oxygen, sans-serif;
@@ -23,9 +23,25 @@ h2 {
   font-style: italic;
 }
 
+#bottom-bar {
+  z-index: 2000;
+  height: 6%;
+  width: 100%;
+  bottom: 0;
+  position: fixed;
+  background-color: #090909;
+  box-shadow: 0px -1px 1px 0px #332;
+}
+#everything-wrapper {
+  height: 94%;
+  width: 100%;
+  position: fixed;
+}
+
 #map-canvas {
   z-index: 10;
 }
+
 #overlay {
   height: 100%;
   width: 100%;
@@ -105,14 +121,6 @@ label {
   font-weight: 300;
 }
 
-.buttons {
-  position: relative;
-  width: 100%;
-  margin: auto;
-  float: left;
-  clear: none;
-}
-
 button {
   position: relative;
   text-transform: uppercase;
@@ -125,23 +133,13 @@ button {
   box-shadow: 0px 4px rgba(0,40,100,.8);
   color: #fff;
   padding: 10px 20px;
-  margin: 10px auto;
-  display: inline;
-  clear: none;
+  margin: 10px 0;
+  display: inline-block;
   width: 49%;
   position: relative;
   -webkit-transition: background-color ease-in-out .08s;
   -o-transition: background-color ease-in-out .08s;
   transition: background-color ease-in-out .08s;
-}
-
-button:first-child {
-  margin-left: 1px;
-  border-radius: 5px 0px 0px 5px;
-}
-
-button:last-child {
-  border-radius: 0px 5px 5px 0px;
 }
 
 button:hover {
@@ -153,6 +151,14 @@ button:focus {
 }
 button:active {
   background-color: #005CE5; 
+}
+
+.buttons button:first-child {
+  border-radius: 5px 0px 0px 5px;
+}
+
+.buttons button:last-child {
+  border-radius: 0px 5px 5px 0px;
 }
 
 .formfield {
@@ -203,6 +209,22 @@ button:active {
   z-index: 1000000;
   display: none;
 }
+
+#routeinfo {
+  display: none;
+  position: absolute;
+  height: 100%;
+  line-height: 0;
+}
+#routeinfo li {
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  display: inline;
+  margin-right: 1.3em;
+  margin-top: 5px;
+}
+
 .spinner {
   /*display: none;*/
   font-size: 100px;
@@ -424,7 +446,7 @@ button:active {
   font-size: 20px;
 }
 
-#reset, #about {
+/*#reset {
   background-color: rgba(177,177,177, .5);
   border-radius: 50%;
   height: 40px;
@@ -432,6 +454,8 @@ button:active {
   color: #656565;
   position: fixed;
   text-align: center;
+  bottom: 20px;
+  right: 20px;
   z-index: 950;
   display: none;
   font-size: 2.5em;
@@ -439,32 +463,44 @@ button:active {
   text-decoration: none;
 }
 
-#reset:hover, #about:hover {
+#reset:hover {
   color: #fff;
 }
+*/
 
 #reset {
-  bottom: 20px;
-  right: 20px;
+  display: none;
+  margin: auto;
+  text-align: center;
+  bottom: 7%;
+  position: relative;
 }
 
-#about {
-  bottom: 60px;
-  right: 20px;
+#reset button {
+  width: auto;
+  height: 2em;
+  padding: 4px 16px;
+  border-radius: 4px;
 }
 
-#aboutmodal {
-  z-index: 100000;
-  display: block;
-  /*background-color: #f7f7f7;*/
-  width: 350px;
-  height: 200px;
-  border-radius: 7px;
-  box-shadow: 0px 8px 6px 1px #333;
-  padding: 10px;
-  top: 50px;
-  background-image: -moz-radial-gradient(50% 10px, circle closest-corner, rgba(0, 0, 0, 0) 0, rgba(0, 0, 0, 0) 30px, transparent 31px, #f7f7f7 32px);
-  background-image: -webkit-radial-gradient(50% 10px, circle closest-corner, rgba(0, 0, 0, 0) 0, rgba(0, 0, 0, 0) 30px, transparent 31px, #f7f7f7 32px);
-  background-image: -ms-radial-gradient(50% 10px, circle closest-corner, rgba(0, 0, 0, 0) 0, rgba(0, 0, 0, 0) 30px, transparent 31px, #f7f7f7 32px);
-  background-image: -o-radial-gradient(50% 10px, circle closest-corner, rgba(0, 0, 0, 0) 0, rgba(0, 0, 0, 0) 30px, transparent 31px, #f7f7f7 32px);
+#info {
+  z-index: 2500;
+  bottom: 6%;
+  position: absolute;
+  height: 100%;
+  text-align: right;
+  right: 3.1em;
+  color: #fff;
+  font-size: .7em;
+  line-height: 1.6em;
+  font-style: italic;
+  letter-spacing: .4px;
+}
+
+a {
+  color: #ddd;
+}
+
+a:hover {
+  color: #0066ff;
 }

@@ -1,11 +1,11 @@
 import pytest
 from models import Node, Route
 import utils.dbs as dbs
-from random import random
+from random import random, randint
 
 @pytest.fixture
 def route(start_loc, dist):
-    route = Route(start_loc, dist)
+    route = Route(start_loc, dist, 'loop')
     return route
 
 route = route((37.785805, -122.424427), 2)
@@ -46,5 +46,6 @@ def test_lots_of_route():
         lat = lat_min + (random() * (lat_max - lat_min))
         lon = lon_min + (random() * (lon_max - lon_min))
         dist = random() * 9
-        print (lat, lon), dist
-        assert Route((lat, lon), dist) is not None
+        route_type = ['loop', 'outandback'][randint(0, 1)]
+        print (lat, lon), dist, route_type
+        assert Route((lat, lon), dist, route_type) is not None

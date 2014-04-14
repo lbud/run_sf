@@ -27,8 +27,6 @@ def find():
     # Print street names, elevation gain, and distance
     for c in rt.clean:
         print(c.way_name)
-    print(rt.gain)
-    print(rt.distance)
     print(route)
 
     # Sends JSON coordinate list to waiting AJAX request
