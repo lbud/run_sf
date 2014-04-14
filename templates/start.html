@@ -8,35 +8,45 @@
         <link href="http://fonts.googleapis.com/css?family=Oxygen:300,400,700" rel="stylesheet" type="text/css">
     </head>
     <body>
-        <div id="map-canvas"></div>
-        <div id="overlay"></div>
-        <div class="centered" id="formwrapper">
-            <div id="form">
-                <div id="title">
-                    <h1>run sf</h1>
-                    <h2>run smarter, not harder</h2>
+        <div id="bottom-bar">
+            <div id="routeinfo">
+            </div>
+            <div id="reset"><button>New route</button></div>
+            <div id="info"><p>An <a href="https://github.com/lbud/run_sf" target="_blank">experiment</a> by <a href="https://twitter.com/lbudorick" target="_blank">@lbudorick</a></p></div>
+        </div>
+        <div id="everything-wrapper">
+            <div id="map-canvas"></div>
+            <div id="overlay"></div>
+            <div class="centered" id="formwrapper">
+                <div id="form">
+                    <div id="title">
+                        <h1>run sf</h1>
+                        <h2>run smarter, not harder</h2>
+                    </div>
+                    <div id="logo"><img src="../static/logo.png"></div>
+                    <label>start:</label><input type="text" class="formfield" placeholder="starting address" name="start" id="address">
+                    <div class="subtext">san francisco, ca</div>
+                    <label>distance:</label><input type="text" class="formfield" placeholder="" name="end" id="distance"><span class="small">miles</span>
+                    <input type="text" name="lat" id="lat">
+                    <input type="text" name="lon" id="lon">        
+                    <div class="buttons">
+                        <button id="loop">loop route ></button>
+                        <button id="outandback">out-and-back ></button>
+                    </div>
                 </div>
-                <div id="logo"><img src="../static/logo.png"></div>
-                <label>start:</label><input type="text" class="formfield" placeholder="starting address" name="start" id="address">
-                <div class="subtext">san francisco, ca</div>
-                <label>distance:</label><input type="text" class="formfield" placeholder="" name="end" id="distance"><span class="small">miles</span>
-                <input type="text" name="lat" id="lat">
-                <input type="text" name="lon" id="lon">        
-                <button id="go">find route ></button>
+            </div>
+            <div class="centered" id="loader">
+                <ul class="spinner">
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                </ul>
+                <div id="message">
+                    <p id="msg">please wait while we find you a route...</p>
+                </div>
             </div>
         </div>
-        <div class="centered" id="loader">
-            <ul class="spinner">
-                <li></li>
-                <li></li>
-                <li></li>
-                <li></li>
-            </ul>
-            <div id="message">
-                <p id="msg">please wait while we find you a route...</p>
-            </div>
-        </div>
-        <div id="reset">&larr;</div>
         <script src="https://code.jquery.com/jquery.js"></script>
         <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
         <script src="../static/js/maps_render.js"></script>
@@ -51,10 +61,23 @@
                 var i = Math.floor(Math.random() * msgs.length);
                 $('#msg').html(msgs[i]);
             }
+
+            function metaData(dist, gain) {
+                routeData = document.createElement("ul");
+                routeData.id = "thisroute"
+                routeDist = document.createElement("li");
+                routeDist.innerHTML = "DISTANCE: " + dist + " miles";
+                routeGain = document.createElement("li");
+                routeGain.innerHTML = "GAIN: " + gain + " feet";
+                routeData.appendChild(routeDist)
+                routeData.appendChild(routeGain)
+                $('#routeinfo').append(routeData);
+            }
+
             var geocoder = new google.maps.Geocoder();
             var lat;
             var lon;
-            function drawRoute() {
+            function drawRoute(routeType) {
                 // geocode address
                 var address = document.getElementById("address").value;
                 var southWest = new google.maps.LatLng(37.705295, -122.512788);
@@ -66,12 +89,14 @@
                     lon = results[0].geometry.location.A;
                     var distance = document.getElementById("distance").value;
                     // post start + distance to flask app
-                    $.post( "/", {lat: lat, lon: lon, distance: distance}).done(function(data){
+                    $.post( "/", {lat: lat, lon: lon, distance: distance, routeType: routeType}).done(function(data){
                         route = JSON.parse(data);
                         $('#loader').fadeOut();
                         $('#overlay').fadeOut();
                         $('#reset').fadeIn();
                         render(route.coords);
+                        metaData(route.distance, route.gain);
+                        $('#routeinfo').fadeIn();
                     });
 
                 } else {
@@ -79,6 +104,7 @@
                 }
                 });
             }
+
             function resetForm() {
                 // Resets input form upon clicking reset button. Doesn't yet clear 
                 //   rendered route just in case user presses ESC to view again.
@@ -89,25 +115,43 @@
                 $('#formwrapper').fadeIn();
             }
 
-            $('#go').click(function() {
+            $('#loop').click(function() {
                 // Sends pathfinding request;
                 // displays loader with distracting messages while waiting.
-                drawRoute();
+                $('#thisroute').remove();
+                drawRoute('loop');
                 $('#formwrapper').fadeOut(40);            
                 $('#loader').fadeIn(40);
                 window.setInterval(function(){
                     replaceMessage(messages);
                 },8000);
+                $('routeinfo').fadeIn();
             });
+
+            $('#outandback').click(function() {
+                $('#thisroute').remove();
+                drawRoute('outandback');
+                $('#formwrapper').fadeOut(40);            
+                $('#loader').fadeIn(40);
+                window.setInterval(function(){
+                    replaceMessage(messages);
+                },8000);
+                $('routeinfo').fadeIn();
+            });
+
             $('#reset').click(function() {
                 resetForm();
+                $('#routeinfo').fadeOut(); 
+                $('#reset').fadeOut();               
                 $(document).on('keyup.escape', function(e) {
                     if (e.keyCode == 27) {
                         $('#overlay').fadeOut();
                         $('#formwrapper').fadeOut();
+                        $('#routeinfo').fadeIn();
+                        $('#reset').fadeIn();
                     }
                 });
-                $('#go').click(function() {
+                $('#loop, #outandback').click(function() {
                     clearRoute();
                     $(document).unbind('keyup.escape');
                 });

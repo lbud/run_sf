@@ -2,7 +2,7 @@ from .finding_fns import find_miles as dist
 import dbs
 
 
-def find_route(start, route_distance):
+def find_route(start, route_distance, route_type):
     """
     Finds a route out and back from a point, given a distance.
 
@@ -18,30 +18,44 @@ def find_route(start, route_distance):
     global total_route_distance
     total_route_distance = route_distance
 
-    # Explore out from starting point.
-    first_distance = float(route_distance) * .33
-    first_leg = a_star(start_node, None, first_distance, explore_score_fn)
-    first_end = first_leg.get('path')[-1]
-    # print [(p.id, p.lat, p.lon) for p in first_leg.get('path')]
+    if route_type == "loop":
+        # Explore out from starting point.
+        first_distance = float(route_distance) * .33
+        first_leg = a_star(start_node, None, first_distance, explore_score_fn)
+        first_end = first_leg.get('path')[-1]
+        # print [(p.id, p.lat, p.lon) for p in first_leg.get('path')]
 
-    # Make score function for return, to avoid the path already taken.
-    return_score_fn = make_loop_score_fn(first_leg.get('path'))
+        # Make score function for return, to avoid the path already taken.
+        return_score_fn = make_loop_score_fn(first_leg.get('path'))
 
-    # Explore back, avoiding path already taken.
-    return_leg = a_star(first_end, start_node, None, return_score_fn)
-    # return_leg = a_star(first_end, None, 0, explore_score_fn)
+        # Explore back, avoiding path already taken.
+        return_leg = a_star(first_end, start_node, None, return_score_fn)
+        # return_leg = a_star(first_end, None, 0, explore_score_fn)
 
-    # for p in return_leg.get('path'):
-    #     print (p.lat, p.lon)
+        # for p in return_leg.get('path'):
+        #     print (p.lat, p.lon)
 
-    # Route info to return -- only needs return_leg info as everything is
-    # calculated from node parents
-    route = {}
-    route['path'] = return_leg['path']
-    route['distance'] = return_leg['distance']
-    route['gain'] = return_leg['gain']
+        # Route info to return -- only needs return_leg info as everything is
+        # calculated from node parents
+        route = {}
+        route['path'] = return_leg['path']
+        route['distance'] = return_leg['distance']
+        route['gain'] = return_leg['gain']
 
-    return route
+        return route
+
+    if route_type == 'outandback':
+
+        half_distance = float(route_distance) * .5
+        out_leg = a_star(start_node, None, half_distance, explore_score_fn)
+
+        route = {}
+        route['path'] = out_leg['path']
+        # Because of rendering fns, double path in models.py 
+        route['distance'] = out_leg['distance'] * 2
+        route['gain'] = out_leg['gain'] * 2
+
+        return route
 
 
 def explore_score_fn(start, end, current, route_distance):

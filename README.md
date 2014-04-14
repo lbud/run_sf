@@ -146,3 +146,8 @@ route hard-coded in is available in the [/demo][demo] directory.
 [screen_2]: https://github.com/lbud/run_sf/blob/master/etc/screen_2.png?raw=true
 [screen_3]: https://github.com/lbud/run_sf/blob/master/etc/screen_3.png?raw=true
 [screen_4]: https://github.com/lbud/run_sf/blob/master/etc/screen_4.png?raw=true
+=======
+[screen_1]: https://github.com/lbud/run_sf/tree/master/etc/screen_1.png
+[screen_2]: https://github.com/lbud/run_sf/tree/master/etc/screen_2.png
+[screen_3]: https://github.com/lbud/run_sf/tree/master/etc/screen_3.png
+[screen_4]: https://github.com/lbud/run_sf/tree/master/etc/screen_4.png

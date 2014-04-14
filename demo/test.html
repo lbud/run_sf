@@ -8,35 +8,49 @@
         <link href="http://fonts.googleapis.com/css?family=Oxygen:300,400,700" rel="stylesheet" type="text/css">
     </head>
     <body>
-        <div id="map-canvas"></div>
-        <div id="overlay"></div>
-        <div class="centered" id="formwrapper">
-            <div id="form">
-                <div id="title">
-                    <h1>run sf</h1>
-                    <h2>run smarter, not harder</h2>
+        <div id="bottom-bar">
+            <div id="routeinfo">
+                <ul>
+                    <li>DISTANCE: 2.32 miles</li>
+                    <li>TOTAL GAIN: 232 feet</li>
+                </ul>
+            </div>
+            <div id="reset"><button>New route</button></div>
+            <div id="info"><p>An <a href="https://github.com/lbud/run_sf">experiment</a> by <a href="https://twitter.com/lbudorick">@lbudorick</a></p></div>
+        </div>
+        <div id="everything-wrapper">
+            <div id="map-canvas"></div>
+            <div id="overlay"></div>
+            <div class="centered" id="formwrapper">
+                <div id="form">
+                    <div id="title">
+                        <h1>run sf</h1>
+                        <h2>run smarter, not harder</h2>
+                    </div>
+                    <div id="logo"><img src="logo.png"></div>
+                    <label>start:</label><input type="text" class="formfield" placeholder="starting address" name="start" id="address">
+                    <div class="subtext">san francisco, ca</div>
+                    <label>distance:</label><input type="text" class="formfield" placeholder="" name="end" id="distance"><span class="small">miles</span>
+                    <input type="text" name="lat" id="lat">
+                    <input type="text" name="lon" id="lon">        
+                    <div class="buttons">
+                        <button id="go">loop route ></button>
+                        <button id="outandback">out-and-back ></button>
+                    </div>
                 </div>
-                <div id="logo"><img src="logo.png"></div>
-                <label>start:</label><input type="text" class="formfield" placeholder="starting address" name="start" id="address">
-                <div class="subtext">san francisco, ca</div>
-                <label>distance:</label><input type="text" class="formfield" placeholder="" name="end" id="distance"><span class="small">miles</span>
-                <input type="text" name="lat" id="lat">
-                <input type="text" name="lon" id="lon">        
-                <button id="go">find route ></button>
+            </div>
+            <div class="centered" id="loader">
+                <ul class="spinner">
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                </ul>
+                <div id="message">
+                    <p id="msg">please wait while we find you a route...</p>
+                </div>
             </div>
         </div>
-        <div class="centered" id="loader">
-            <ul class="spinner">
-                <li></li>
-                <li></li>
-                <li></li>
-                <li></li>
-            </ul>
-            <div id="message">
-                <p id="msg">please wait while we find you a route...</p>
-            </div>
-        </div>
-        <div id="reset">&larr;</div>
         <script src="https://code.jquery.com/jquery.js"></script>
         <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
         <script src="maps_render.js"></script>
@@ -75,6 +89,7 @@
                 $('#loader').fadeOut();
                 $('#overlay').fadeOut();
                 $('#reset').fadeIn();
+                $('#routeinfo').fadeIn();                
                 render();
             }
 
@@ -85,10 +100,14 @@
             
             $('#reset').click(function() {
                 resetForm();
+                $('#routeinfo').fadeOut(); 
+                $('#reset').fadeOut();               
                 $(document).on('keyup.escape', function(e) {
                     if (e.keyCode == 27) {
                         $('#overlay').fadeOut();
                         $('#formwrapper').fadeOut();
+                        $('#routeinfo').fadeIn();
+                        $('#reset').fadeIn();
                     }
                 });
                 $('#go').click(function() {
