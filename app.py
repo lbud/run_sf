@@ -17,17 +17,16 @@ def find():
     data = request.form
     distance = float(data.get('distance'))
     start_loc = (float(data.get('lat')), float(data.get('lon')))
+    route_type = data.get('routeType')
     print(start_loc)
     print(distance)
 
-    rt = models.Route(start_loc, distance)
+    rt = models.Route(start_loc, distance, route_type)
     route = rt.render
 
     # Print street names, elevation gain, and distance
     for c in rt.clean:
         print(c.way_name)
-    print(rt.gain)
-    print(rt.distance)
     print(route)
 
     # Sends JSON coordinate list to waiting AJAX request

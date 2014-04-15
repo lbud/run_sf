@@ -6,13 +6,14 @@ import utils.dbs as dbs
 
 
 class Route(object):
-    def __init__(self, start, route_distance, end=None):  # route_type="loop"
+    def __init__(self, start, route_distance, route_type, end=None):
         self.start = start
         # self.route_type = route_type
         self.end = end
         self.first = Node(nearest_intersection(self.start).id)
         self.route_distance = float(route_distance)
-        self.path = find_route(self.first, route_distance)
+        self.route_type = route_type
+        self.path = find_route(self.first, route_distance, route_type)
         self.full_path = self.path.get('path')
         self.distance = self.path.get('distance')
         self.gain = self.path.get('gain')
@@ -50,18 +51,22 @@ class Route(object):
                 for n in range(len(i.way_nodes)):
                     node_list.append(i.way_nodes[n])
             node_list.append(i)
+        if self.route_type == "outandback":
+            node_list += node_list[-2::-1]
         return node_list
 
     @property
     def render(self):
-        """ Returns a JSON object of coordinates, for rendering on a map.
+        """ Returns a JSON object of coordinates, for rendering on a map,
+        plus other relevant data.
         """
         start = [[self.start[0], self.start[1]]]
         coord_list = start + [
             [n.lat, n.lon] for n in self.full_node_path if n is not None
         ] + start
-        coords = json.dumps({"coords": [c for c in coord_list]})
-        return coords
+        data = json.dumps({"coords": [c for c in coord_list], \
+            "distance": round(self.distance, 2), "gain": round(self.gain, 2)})
+        return data
 
 
 class Node(object):
