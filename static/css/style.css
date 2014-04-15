@@ -545,4 +545,18 @@ a:hover {
     width: .1em;
     height: .1em;
   }
+
+  .spinner li:nth-child(1) {
+    margin: 0 0 0 -.05em;
+  }
+  .spinner li:nth-child(2) {
+      margin: -.05em 0 0 0;
+  }
+  .spinner li:nth-child(3) {
+      margin: 0 0 0 -.05em;
+  }
+  .spinner li:nth-child(4) {
+      margin: -.05em 0 0 0;
+  }
+
 }
