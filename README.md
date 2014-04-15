@@ -107,10 +107,17 @@ using the DirectionsService API.
 
 ### Screenshots
 ![Starting screen](etc/screen_1.png "Starting screen")
+*Starting screen*
+
 ![Loader during AJAX call](etc/screen_2.png "Loader")
+*Loader*
+
 ![Rendered route](etc/screen_3.png "Rendered route")
+*Rendered route*
+
 ![Generate a new route with no page reload](etc/screen_4.png "New route
 generation without page reload")
+*New route generation without page reload*
 
 ## Improvements / Future Features
 
