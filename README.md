@@ -105,15 +105,12 @@ objects, a route object would also query the database for all nodes between
 intersections. In this way I was able to draw much nicer polylines without
 using the DirectionsService API.
 
-### Screengrabs
-![Starting screen][screen_1]
-_Starting screen_
-![Loader during AJAX call][screen_2]
-_Loader_
-![Rendered route][screen_3]
-_Rendered route_
-![Generate a new route with no page reload][screen_4]
-_New route generation without page reload_
+### Screenshots
+![Starting screen](etc/screen_1.png "Starting screen")
+![Loader during AJAX call](etc/screen_2.png "Loader")
+![Rendered route](etc/screen_3.png "Rendered route")
+![Generate a new route with no page reload](etc/screen_4.png "New route
+generation without page reload")
 
 ## Improvements / Future Features
 
@@ -142,12 +139,3 @@ route hard-coded in is available in the [/demo][demo] directory.
 
 [A\*]: http://en.wikipedia.org/wiki/A*_search_algorithm
 [demo]: https://github.com/lbud/run_sf/tree/master/demo
-[screen_1]: https://github.com/lbud/run_sf/blob/master/etc/screen_1.png?raw=true
-[screen_2]: https://github.com/lbud/run_sf/blob/master/etc/screen_2.png?raw=true
-[screen_3]: https://github.com/lbud/run_sf/blob/master/etc/screen_3.png?raw=true
-[screen_4]: https://github.com/lbud/run_sf/blob/master/etc/screen_4.png?raw=true
-=======
-[screen_1]: https://github.com/lbud/run_sf/tree/master/etc/screen_1.png
-[screen_2]: https://github.com/lbud/run_sf/tree/master/etc/screen_2.png
-[screen_3]: https://github.com/lbud/run_sf/tree/master/etc/screen_3.png
-[screen_4]: https://github.com/lbud/run_sf/tree/master/etc/screen_4.png
