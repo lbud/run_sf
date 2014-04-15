@@ -6,13 +6,21 @@
         <meta charset="utf-8">
         <link rel="stylesheet" type="text/css" href="../static/css/style.css">
         <link href="http://fonts.googleapis.com/css?family=Oxygen:300,400,700" rel="stylesheet" type="text/css">
+        <script type="text/javascript">
+            var Keen=Keen||{configure:function(e){this._cf=e},addEvent:function(e,t,n,i){this._eq=this._eq||[],this._eq.push([e,t,n,i])},setGlobalProperties:function(e){this._gp=e},onChartsReady:function(e){this._ocrq=this._ocrq||[],this._ocrq.push(e)}};(function(){var e=document.createElement("script");e.type="text/javascript",e.async=!0,e.src=("https:"==document.location.protocol?"https://":"http://")+"dc8na2hxrj29i.cloudfront.net/code/keen-2.1.0-min.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})();
+
+            Keen.configure({
+                projectId: "534d5bdb00111c7ab500000e",
+                writeKey: "f22f25c5b9741d42c0d598ff07d47e0554c209d5b4c4ad4d561a1fe4fa8db2f38ed9954af67dfadc78249373a45c8621a9f49b424cce984c15cc35db39b6b2788a89c83aaab7c5d0ba9ada524e9a17e77abec157cf15276d48e7bb3ed7f037450b8b121856173083b3f8051517ae2e55"
+            });
+        </script>
     </head>
     <body>
         <div id="bottom-bar">
             <div id="routeinfo">
             </div>
             <div id="reset"><button>New route</button></div>
-            <div id="info"><p>An <a href="https://github.com/lbud/run_sf" target="_blank">experiment</a> by <a href="https://twitter.com/lbudorick" target="_blank">@lbudorick</a></p></div>
+            <div id="info"><p>An <a href="https://github.com/lbud/run_sf" target="_blank" onclick="return Keen.trackExternalLink(this, 'visit_github');">experiment</a> by <a href="https://twitter.com/lbudorick" target="_blank" onclick="return Keen.trackExternalLink(this, 'visit_twitter');">@lbudorick</a></p></div>
         </div>
         <div id="everything-wrapper">
             <div id="map-canvas"></div>
@@ -51,6 +59,46 @@
         <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
         <script src="../static/js/maps_render.js"></script>
         <script>
+
+            var myGlobalProperties = function(eventCollection) {
+                var globalProperties = {
+                    page: window.location.href,
+                    time: new Date().toISOString(),
+                    referrer: document.referrer,
+                    agent: window.navigator.userAgent
+                };
+                return globalProperties;
+            };
+            Keen.setGlobalProperties(myGlobalProperties);
+
+            var trackRequests = function(reqloc, lat, lon, dist) {
+                var request = {
+                    requestlocation: reqloc,
+                    geolocation: {
+                        coords: [lat, lon]
+                    },
+                    distance: dist
+                };
+                Keen.addEvent("requests", request);
+            };
+
+            var trackResults = function(result) {
+                var result = {
+                    route: result.coords,
+                    dist: result.distance,
+                    gain: result.gain
+                };
+                Keen.addEvent("results", result);
+            };
+
+            var failRequests = function(loc, dist) {
+                var failure = {
+                    location: loc,
+                    distance: dist
+                };
+                Keen.addEvent("failures", failure)
+            }
+
             var messages=[
                 "go tie your shoes and stretch or something!",
                 "how's the weather out today?",
@@ -84,13 +132,30 @@
                 var northEast = new google.maps.LatLng(37.811928, -122.360649);
                 var bounds = new google.maps.LatLngBounds(southWest, northEast);
                 geocoder.geocode( { "address": address, "bounds": bounds }, function(results, status) {
-                if (status == google.maps.GeocoderStatus.OK) {
+                var distNaN = isNaN(document.getElementById("distance").value);
+                if (37.705295 <= results[0].geometry.location.k &&
+                    results[0].geometry.location.k <= 37.811928 &&
+                    -122.512788 <= results[0].geometry.location.A &&
+                    results[0].geometry.location.A <= -122.360649) {
+                    var isInBounds = true;
+                } else {
+                    var isInBounds = false;
+                }
+                if (address != '' && status == google.maps.GeocoderStatus.OK && distNaN == false && isInBounds == true) {
+                    $('#thisroute').remove();
+                    $('#formwrapper').fadeOut(40);            
+                    $('#loader').fadeIn(40);
+                    window.setInterval(function(){
+                        replaceMessage(messages);
+                    },8000);
                     lat = results[0].geometry.location.k;
                     lon = results[0].geometry.location.A;
                     var distance = document.getElementById("distance").value;
+                    trackRequests(address, lat, lon, Number(distance));
                     // post start + distance to flask app
                     $.post( "/", {lat: lat, lon: lon, distance: distance, routeType: routeType}).done(function(data){
                         route = JSON.parse(data);
+                        trackResults(route);
                         $('#loader').fadeOut();
                         $('#overlay').fadeOut();
                         $('#reset').fadeIn();
@@ -100,7 +165,16 @@
                     });
 
                 } else {
-                    alert("Geocode was not successful for the following reason: " + status);
+                    failDist = document.getElementById("distance").value;
+                    failRequests(address, failDist);
+                    if (status != google.maps.GeocoderStatus.OK) {
+                        $('#address').val('').attr("placeholder", "that doesn't look quite right...").addClass('help');
+                    } else if (address == '' || isInBounds == false) {
+                        $('#address').val('').attr("placeholder", "try somewhere in san francisco?").addClass('help');
+                    }
+                    if (distNaN == true) {
+                        $('#distance').val('').attr("placeholder", "??").addClass('help');
+                    }
                 }
                 });
             }
@@ -110,33 +184,19 @@
                 //   rendered route just in case user presses ESC to view again.
                 $('#overlay').fadeIn();
                 $('#title').css('visibility','hidden');
-                document.getElementById('address').value='';
-                document.getElementById('distance').value='';
+                $('#address').val('').attr("placeholder", "starting address").removeClass('help');
+                $('#distance').val('').attr("placeholder", "").removeClass('help');
                 $('#formwrapper').fadeIn();
             }
 
             $('#loop').click(function() {
-                // Sends pathfinding request;
-                // displays loader with distracting messages while waiting.
-                $('#thisroute').remove();
                 drawRoute('loop');
-                $('#formwrapper').fadeOut(40);            
-                $('#loader').fadeIn(40);
-                window.setInterval(function(){
-                    replaceMessage(messages);
-                },8000);
-                $('routeinfo').fadeIn();
+                // $('routeinfo').fadeIn();
             });
 
             $('#outandback').click(function() {
-                $('#thisroute').remove();
                 drawRoute('outandback');
-                $('#formwrapper').fadeOut(40);            
-                $('#loader').fadeIn(40);
-                window.setInterval(function(){
-                    replaceMessage(messages);
-                },8000);
-                $('routeinfo').fadeIn();
+                // $('routeinfo').fadeIn();
             });
 
             $('#reset').click(function() {
