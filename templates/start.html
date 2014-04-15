@@ -15,6 +15,17 @@
                 projectId: "534d7579d97b8517c500000a",
                 writeKey: "d5c16a58a44f847b6b73ab5dff11c9fc75c1e442ddef14a930c5484dce53ba941220e9e4420b3792d0dd51a58f848b2dace38c67245a786026c470c7c656dc64cac35169b0fb4570b57334b92aee51fae2a7ed08ece150e58bee93036bfd848b8597347da5d21d8bbef6a70ed1de8efb"
             });
+
+            var pageView = function() {
+                return {
+                    page: window.location.href,
+                    time: new Date().toISOString(),
+                    referrer: document.referrer,
+                    agent: window.navigator.userAgent
+                };
+            };
+
+            Keen.addEvent('pageView', pageView());
         </script>
     </head>
     <body>

@@ -6,19 +6,19 @@ An app to generate flat running routes in San Francisco.
 ## Overview
 
 * Parsed XML data download of OpenStreetMap map of SF into a map graph
-* Used Google Elevation API for elevation data for all intersections
+* Used Google Elevation API to get elevation data for all intersections
 * Stored all graph data in PostgreSQL database with PostGIS extension for
   geospatial querying; used SQLAlchemy and GeoAlchemy to interact with DB 
 * Modified [A\* pathfinding algorithm][A\*]
-* Single-page app built on Python/Flask and JavaScript/jQuery
+* Single-page app built on Python/Flask and JavaScript/AJAX
 * Deployed using DigitalOcean VPS
 
 
 ## Modified A\* Algorithm
 
-I started my pathfinding algorithm by implementing A\* in its classic
-incarnation, so that it could simply find a path from A to B. In A\*, a node
-that may be along a path is scored using
+I started my [pathfinding algorithm](utils/pathfinding.py) by implementing A\*
+in its classic incarnation, so that it could simply find a path from A to B. In
+A\*, a node that may be along a path is scored using
 
 ```
 f(n) = g(n) + h(n)
@@ -30,8 +30,8 @@ estimated heuristic cost from a node to the end.
 Once I understood that, I added elevation data so that elevation changes were
 proportionally more costly, so that whereas before, for example, a route from
 Van Ness and Lombard to Green Street at the Embarcadero was going over Russian
-Hill and Telegraph Hill, but now it was avoiding the hills and routing north
-around (Bay Street). Essentially at this point my A\* score function was
+Hill and Telegraph Hill, now it was avoiding the hills and routing north
+around them (Bay Street). Essentially at this point my A\* score function was
 
 ```
 f(n) = g(n) + h(n) + elevation_weight
@@ -125,8 +125,6 @@ generation without page reload")
   directionality.
 * Integrate crime data and weigh it heavily in both cost functions so that
   routes avoid high-crime areas.
-* Support for different types of routes (loops, which are currently created,
-  and out-and-back routes).
 * User profiles with the ability to save routes.
 * A slider that allows a user to place nodes along a representation of the
   distance of a run and drag them up and down to add hill preferences (e.g.
@@ -140,9 +138,9 @@ algorithm.
 
 ## Deployment
 
-Run SF will soon be deployed. In the meantime, a front-end demo with a single
-route hard-coded in is available in the [/demo][demo] directory.
+Run SF is deployed at [run.laurenbudorick.com][site]. In the meantime, a
+front-end demo with a single route hard-coded in is available in the
+[/demo](demo/) directory.
 
-
+[site]: http://run.laurenbudorick.com
 [A\*]: http://en.wikipedia.org/wiki/A*_search_algorithm
-[demo]: https://github.com/lbud/run_sf/tree/master/demo
