@@ -135,6 +135,9 @@
                 var bounds = new google.maps.LatLngBounds(southWest, northEast);
                 geocoder.geocode( { "address": address, "bounds": bounds }, function(results, status) {
                 var distNaN = isNaN(document.getElementById("distance").value);
+                if (document.getElementById("distance").value <= 0) {
+                    distNaN = true;
+                }
                 if (37.705295 <= results[0].geometry.location.k &&
                     results[0].geometry.location.k <= 37.811928 &&
                     -122.512788 <= results[0].geometry.location.A &&
