@@ -1,6 +1,6 @@
 # Run SF
 
-An app to generate flat running routes in San Francisco.
+An app to generate flat running routes in San Francisco.  
 A blog post on the development process can be found [here][blog post].
 
 
