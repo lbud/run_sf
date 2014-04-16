@@ -139,7 +139,7 @@ algorithm.
 
 ## Deployment
 
-Run SF is deployed at [run.laurenbudorick.com][site]. In the meantime, a
+Run SF is deployed at [run.laurenbudorick.com][site]. A standalone
 front-end demo with a single route hard-coded in is available in the
 [/demo](demo/) directory.
 
