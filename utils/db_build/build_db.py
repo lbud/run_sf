@@ -49,6 +49,8 @@ def foot_restricted(way):
     is_steps = way.findall('./tag[@k="highway"][@v="steps"]')
     # steps -- not ideal + typically connect to sidewalks
     no_sidewalk = way.findall('./tag[@k="sidewalk"][@v="no"]')
+    # areas - to indicate plazas not necessarily connected to roads
+    is_area = way.findall('./tag[@k="area"][@v="yes"]')
     if (foot_rest or
             is_motorway or
             is_motorway_link or
