@@ -75,7 +75,6 @@
             var map = L.mapbox.map('map-canvas', 'lbud.io0b4ioi')
         </script>
         <script src="https://code.jquery.com/jquery.js"></script>
-        <script src="../static/js/maps_render.js"></script>
         <script>
 
             var myGlobalProperties = function(eventCollection) {
@@ -151,10 +150,12 @@
                 }
                 var geocoder = L.mapbox.geocoder('lbud.io0b4ioi'); // TODO / placeholder map
                 geocoder.query(address, function(err, results) {
+                    // TODO: refactor this weird js  vv
                     var distNaN = isNaN(document.getElementById("distance").value);
                     if (document.getElementById("distance").value <= 0) {
                         distNaN = true;
                     }
+                    // TODO: properly hinted geocode  vv ^^
                     if (37.705295 <= results.latlng[0] &&
                         results.latlng[0] <= 37.811928 &&
                         -122.512788 <= results.latlng[1] &&
@@ -181,6 +182,7 @@
                             $('#loader').fadeOut();
                             $('#overlay').fadeOut();
                             $('#reset').fadeIn();
+                            var polyline; var start;
                             render(route.coords);
                             metaData(route.distance, route.gain);
                             $('#routeinfo').fadeIn();
@@ -201,6 +203,12 @@
                 })
             }
 
+            function render(stops) {
+                polyline = L.polyline(stops).addTo(map);
+                start = L.marker(stops[0]).addTo(map);
+                map.fitBounds(polyline.getBounds());
+            }
+
             function resetForm() {
                 // Resets input form upon clicking reset button. Doesn't yet clear
                 //   rendered route just in case user presses ESC to view again.
@@ -209,6 +217,13 @@
                 $('#address').val('').attr("placeholder", "starting address").removeClass('help');
                 $('#distance').val('').attr("placeholder", "").removeClass('help');
                 $('#formwrapper').fadeIn();
+            }
+
+            function clearRoute() {
+                // clears route and marker if user clicks to get a new route without refreshing page
+                map.removeLayer(polyline);
+                map.removeLayer(start);
+
             }
 
             $('#loop').click(function() {
