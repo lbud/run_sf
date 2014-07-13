@@ -5,6 +5,8 @@
         <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
         <meta charset="utf-8">
         <link rel="stylesheet" type="text/css" href="../static/css/style.css">
+        <script src='https://api.tiles.mapbox.com/mapbox.js/v1.6.4/mapbox.js'></script>
+        <link href='https://api.tiles.mapbox.com/mapbox.js/v1.6.4/mapbox.css' rel='stylesheet' />
         <link href="http://fonts.googleapis.com/css?family=Oxygen:300,400,700" rel="stylesheet" type="text/css">
         <link rel="shortcut icon" href="../static/favicon.ico" type="image/x-icon">
         <link rel="icon" href="../static/favicon.ico" type="image/x-icon">
@@ -49,7 +51,7 @@
                     <div class="subtext">san francisco, ca</div>
                     <label>distance:</label><input type="text" class="formfield" placeholder="" name="end" id="distance"><span class="small">miles</span>
                     <input type="text" name="lat" id="lat">
-                    <input type="text" name="lon" id="lon">        
+                    <input type="text" name="lon" id="lon">
                     <div class="buttons">
                         <button id="loop">loop route ></button>
                         <button id="outandback">out-and-back ></button>
@@ -68,8 +70,11 @@
                 </div>
             </div>
         </div>
+
+        <script>
+            var map = L.mapbox.map('map-canvas', 'lbud.io0b4ioi')
+        </script>
         <script src="https://code.jquery.com/jquery.js"></script>
-        <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
         <script src="../static/js/maps_render.js"></script>
         <script>
 
@@ -135,68 +140,69 @@
                 $('#routeinfo').append(routeData);
             }
 
-            var geocoder = new google.maps.Geocoder();
             var lat;
             var lon;
-            function drawRoute(routeType) {
-                // geocode address
-                var address = document.getElementById("address").value;
-                var southWest = new google.maps.LatLng(37.705295, -122.512788);
-                var northEast = new google.maps.LatLng(37.811928, -122.360649);
-                var bounds = new google.maps.LatLngBounds(southWest, northEast);
-                geocoder.geocode( { "address": address, "bounds": bounds }, function(results, status) {
-                var distNaN = isNaN(document.getElementById("distance").value);
-                if (document.getElementById("distance").value <= 0) {
-                    distNaN = true;
-                }
-                if (37.705295 <= results[0].geometry.location.k &&
-                    results[0].geometry.location.k <= 37.811928 &&
-                    -122.512788 <= results[0].geometry.location.A &&
-                    results[0].geometry.location.A <= -122.360649) {
-                    var isInBounds = true;
-                } else {
-                    var isInBounds = false;
-                }
-                if (address != '' && status == google.maps.GeocoderStatus.OK && distNaN == false && isInBounds == true) {
-                    $('#thisroute').remove();
-                    $('#formwrapper').fadeOut(40);            
-                    $('#loader').fadeIn(40);
-                    window.setInterval(function(){
-                        replaceMessage(messages);
-                    },8000);
-                    lat = results[0].geometry.location.k;
-                    lon = results[0].geometry.location.A;
-                    var distance = document.getElementById("distance").value;
-                    trackRequests(address, lat, lon, Number(distance));
-                    // post start + distance to flask app
-                    $.post( "/", {lat: lat, lon: lon, distance: distance, routeType: routeType}).done(function(data){
-                        route = JSON.parse(data);
-                        trackResults(route);
-                        $('#loader').fadeOut();
-                        $('#overlay').fadeOut();
-                        $('#reset').fadeIn();
-                        render(route.coords);
-                        metaData(route.distance, route.gain);
-                        $('#routeinfo').fadeIn();
-                    });
 
-                } else {
-                    failDist = document.getElementById("distance").value;
-                    failRequests(address, failDist);
-                    if (status != google.maps.GeocoderStatus.OK) {
-                        $('#address').val('').attr("placeholder", "that doesn't look quite right...").addClass('help');
-                    } else if (address == '' || isInBounds == false) {
-                        $('#address').val('').attr("placeholder", "try somewhere in san francisco?").addClass('help');
-                    }
-                    if (distNaN == true) {
-                        $('#distance').val('').attr("placeholder", "??").addClass('help');
-                    }
+            function drawRoute(routeType) {
+                // geocode address; NEW: mapbox geocode
+                var address = document.getElementById("address").value;
+                if (address.toLowerCase().indexOf('san francisco') == -1) {
+                    address += " san francisco";
                 }
-                });
+                var geocoder = L.mapbox.geocoder('lbud.io0b4ioi'); // TODO / placeholder map
+                geocoder.query(address, function(err, results) {
+                    var distNaN = isNaN(document.getElementById("distance").value);
+                    if (document.getElementById("distance").value <= 0) {
+                        distNaN = true;
+                    }
+                    if (37.705295 <= results.latlng[0] &&
+                        results.latlng[0] <= 37.811928 &&
+                        -122.512788 <= results.latlng[1] &&
+                        results.latlng[1] <= -122.360649) {
+                        var isInBounds = true;
+                    } else {
+                        var isInBounds = false;
+                    }
+                    if (address != '' && results.results && distNaN == false && isInBounds == true) {
+                        $('#thisroute').remove();
+                        $('#formwrapper').fadeOut(40);
+                        $('#loader').fadeIn(40);
+                        window.setInterval(function(){
+                            replaceMessage(messages);
+                        },8000);
+                        lat = results.latlng[0];
+                        lon = results.latlng[1];
+                        var distance = document.getElementById("distance").value;
+                        trackRequests(address, lat, lon, Number(distance));
+                        // post start + distance to flask app
+                        $.post( "/", {lat: lat, lon: lon, distance: distance, routeType: routeType}).done(function(data){
+                            route = JSON.parse(data);
+                            trackResults(route);
+                            $('#loader').fadeOut();
+                            $('#overlay').fadeOut();
+                            $('#reset').fadeIn();
+                            render(route.coords);
+                            metaData(route.distance, route.gain);
+                            $('#routeinfo').fadeIn();
+                        });
+
+                    } else {
+                        failDist = document.getElementById("distance").value;
+                        failRequests(address, failDist);
+                        if (!results.results) {
+                            $('#address').val('').attr("placeholder", "that doesn't look quite right...").addClass('help');
+                        } else if (address == '' || isInBounds == false) {
+                            $('#address').val('').attr("placeholder", "try somewhere in san francisco?").addClass('help');
+                        }
+                        if (distNaN == true) {
+                            $('#distance').val('').attr("placeholder", "??").addClass('help');
+                        }
+                    }
+                })
             }
 
             function resetForm() {
-                // Resets input form upon clicking reset button. Doesn't yet clear 
+                // Resets input form upon clicking reset button. Doesn't yet clear
                 //   rendered route just in case user presses ESC to view again.
                 $('#overlay').fadeIn();
                 $('#title').css('visibility','hidden');
@@ -215,8 +221,8 @@
 
             $('#reset').click(function() {
                 resetForm();
-                $('#routeinfo').fadeOut(); 
-                $('#reset').fadeOut();               
+                $('#routeinfo').fadeOut();
+                $('#reset').fadeOut();
                 $(document).on('keyup.escape', function(e) {
                     if (e.keyCode == 27) {
                         $('#overlay').fadeOut();
