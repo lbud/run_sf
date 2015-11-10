@@ -137,12 +137,5 @@ generation without page reload")
 I also plan to continue tweaking the score functions to perfect the wayfinding
 algorithm.
 
-## Deployment
-
-Run SF is deployed at [run.laurenbudorick.com][site]. A standalone
-front-end demo with a single route hard-coded in is available in the
-[/demo](demo/) directory.
-
 [blog post]: http://laurenbudorick.tumblr.com/post/82828993995/hackbright-almost-the-end
-[site]: http://run.laurenbudorick.com
 [A\*]: http://en.wikipedia.org/wiki/A*_search_algorithm
